@@ -8,35 +8,38 @@ import {
   Post,
   Put,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ProvinceService } from './province.service';
 import { CreateProvinceDto } from './dto/create-province.dto';
 import { UpdateProvinceDto } from './dto/update-province.dto';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { DataScopeGuard } from '../../common/guards/data-scope.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 
 @Controller('api/admin/provinces')
-@UseGuards(RolesGuard)
-@Roles('super_admin')
+@UseGuards(DataScopeGuard, RolesGuard)
 export class ProvinceController {
   constructor(private provinceService: ProvinceService) {}
 
   @Get()
-  findAll() {
-    return this.provinceService.findAll();
+  findAll(@Req() req: any) {
+    return this.provinceService.findAll(req.dataScope);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.provinceService.findOne(id);
+  findOne(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    return this.provinceService.findOne(id, req.dataScope);
   }
 
   @Post()
+  @Roles('super_admin')
   create(@Body() dto: CreateProvinceDto) {
     return this.provinceService.create(dto);
   }
 
   @Put(':id')
+  @Roles('super_admin')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateProvinceDto,
@@ -45,6 +48,7 @@ export class ProvinceController {
   }
 
   @Delete(':id')
+  @Roles('super_admin')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.provinceService.remove(id);
   }

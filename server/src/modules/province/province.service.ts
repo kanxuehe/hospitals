@@ -1,14 +1,24 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateProvinceDto } from './dto/create-province.dto';
 import { UpdateProvinceDto } from './dto/update-province.dto';
+
+interface DataScope {
+  provinceIds: number[] | null;
+}
 
 @Injectable()
 export class ProvinceService {
   constructor(private prisma: PrismaService) {}
 
-  findAll() {
+  findAll(dataScope?: DataScope) {
+    const where: any = {};
+    if (dataScope?.provinceIds) {
+      where.id = { in: dataScope.provinceIds };
+    }
+
     return this.prisma.province.findMany({
+      where,
       orderBy: { sortOrder: 'asc' },
       include: {
         _count: {
@@ -21,13 +31,23 @@ export class ProvinceService {
     });
   }
 
-  findOne(id: number) {
-    return this.prisma.province.findUnique({
+  async findOne(id: number, dataScope?: DataScope) {
+    const province = await this.prisma.province.findUnique({
       where: { id },
       include: {
         cities: { orderBy: { sortOrder: 'asc' } },
       },
     });
+
+    if (!province) {
+      throw new NotFoundException('省份不存在');
+    }
+
+    if (dataScope?.provinceIds && !dataScope.provinceIds.includes(id)) {
+      throw new ForbiddenException('您无权查看该省份');
+    }
+
+    return province;
   }
 
   async create(dto: CreateProvinceDto) {
