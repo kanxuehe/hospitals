@@ -125,7 +125,6 @@ model Doctor {
   id          Int      @id @default(autoincrement())
   hospitalId  Int      @map("hospital_id")
   name        String   @db.VarChar(50)
-  avatar      String?  @db.VarChar(500)
   title       String   @db.VarChar(50)
   intro       String?  @db.Text
   specialty   String?  @db.Text

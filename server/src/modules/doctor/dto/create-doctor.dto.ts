@@ -10,10 +10,6 @@ export class CreateDoctorDto {
   @MaxLength(50)
   name: string;
 
-  @IsOptional()
-  @IsString()
-  avatar?: string;
-
   @IsString()
   @MaxLength(50)
   title: string;

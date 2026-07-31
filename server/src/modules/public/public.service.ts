@@ -141,7 +141,6 @@ export class PublicService {
           select: {
             id: true,
             name: true,
-            avatar: true,
             title: true,
             intro: true,
             specialty: true,

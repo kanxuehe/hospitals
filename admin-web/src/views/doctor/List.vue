@@ -38,12 +38,6 @@
     <el-card>
       <el-table :data="tableData" v-loading="loading" style="width: 100%">
         <el-table-column prop="name" label="姓名" width="100" />
-        <el-table-column label="头像" width="80">
-          <template #default="{ row }">
-            <el-avatar v-if="row.avatar" :src="row.avatar" size="small" />
-            <el-avatar v-else size="small">{{ row.name?.charAt(0) }}</el-avatar>
-          </template>
-        </el-table-column>
         <el-table-column prop="title" label="职称" width="100" />
         <el-table-column prop="hospital.name" label="所属医院" min-width="160" show-overflow-tooltip />
         <el-table-column prop="specialty" label="擅长领域" min-width="160" show-overflow-tooltip />
@@ -90,7 +84,6 @@
           </el-select>
         </el-form-item>
         <el-form-item label="姓名"><el-input v-model="form.name" /></el-form-item>
-        <el-form-item label="头像URL"><el-input v-model="form.avatar" placeholder="可选" /></el-form-item>
         <el-form-item label="职称"><el-input v-model="form.title" /></el-form-item>
         <el-form-item label="擅长领域"><el-input v-model="form.specialty" type="textarea" :rows="2" placeholder="可选" /></el-form-item>
         <el-form-item label="简介"><el-input v-model="form.intro" type="textarea" :rows="3" placeholder="可选" /></el-form-item>
@@ -132,7 +125,6 @@ const editing = ref<any>(null);
 const form = reactive<any>({
   hospitalId: undefined,
   name: '',
-  avatar: '',
   title: '',
   specialty: '',
   intro: '',
@@ -234,7 +226,6 @@ function openDialog(row?: any) {
     Object.assign(form, {
       hospitalId: row.hospitalId,
       name: row.name,
-      avatar: row.avatar || '',
       title: row.title,
       specialty: row.specialty || '',
       intro: row.intro || '',
@@ -245,7 +236,6 @@ function openDialog(row?: any) {
     Object.assign(form, {
       hospitalId: undefined,
       name: '',
-      avatar: '',
       title: '',
       specialty: '',
       intro: '',
