@@ -51,11 +51,18 @@ export class ProvinceService {
   }
 
   async create(dto: CreateProvinceDto) {
-    const existing = await this.prisma.province.findFirst({
+    const existingName = await this.prisma.province.findFirst({
       where: { name: dto.name },
     });
-    if (existing) {
+    if (existingName) {
       throw new ConflictException('省份名称已存在');
+    }
+
+    const existingCode = await this.prisma.province.findUnique({
+      where: { code: dto.code },
+    });
+    if (existingCode) {
+      throw new ConflictException('省份编码已存在');
     }
 
     return this.prisma.province.create({ data: dto });

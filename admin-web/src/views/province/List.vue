@@ -4,6 +4,7 @@
       <el-button type="success" @click="openDialog()">新增省份</el-button>
     </div>
     <el-table :data="list" v-loading="loading" border>
+      <el-table-column prop="code" label="编码" width="100" />
       <el-table-column prop="name" label="名称" />
       <el-table-column prop="shortName" label="简称" width="80" />
       <el-table-column label="城市数" width="80">
@@ -30,6 +31,7 @@
 
     <el-dialog v-model="dialogVisible" :title="editing ? '编辑省份' : '新增省份'" width="400px">
       <el-form :model="form" label-width="80px">
+        <el-form-item label="编码"><el-input v-model="form.code" placeholder="6位数字，如210000" /></el-form-item>
         <el-form-item label="名称"><el-input v-model="form.name" /></el-form-item>
         <el-form-item label="简称"><el-input v-model="form.shortName" /></el-form-item>
         <el-form-item label="排序"><el-input-number v-model="form.sortOrder" :min="0" /></el-form-item>
@@ -52,7 +54,7 @@ const loading = ref(false);
 const list = ref<any[]>([]);
 const dialogVisible = ref(false);
 const editing = ref<any>(null);
-const form = reactive({ name: '', shortName: '', sortOrder: 0, isEnabled: true });
+const form = reactive({ code: '', name: '', shortName: '', sortOrder: 0, isEnabled: true });
 
 async function fetchData() {
   loading.value = true;
@@ -68,7 +70,7 @@ function openDialog(row?: any) {
   if (row) {
     Object.assign(form, row);
   } else {
-    Object.assign(form, { name: '', shortName: '', sortOrder: 0, isEnabled: true });
+    Object.assign(form, { code: '', name: '', shortName: '', sortOrder: 0, isEnabled: true });
   }
   dialogVisible.value = true;
 }

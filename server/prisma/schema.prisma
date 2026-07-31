@@ -9,6 +9,7 @@ datasource db {
 
 model Province {
   id         Int      @id @default(autoincrement())
+  code       String   @unique @db.VarChar(6)
   name       String   @db.VarChar(50)
   shortName  String   @db.VarChar(10)
   sortOrder  Int      @default(0)
@@ -26,6 +27,7 @@ model Province {
 model City {
   id         Int      @id @default(autoincrement())
   provinceId Int      @map("province_id")
+  code       String   @unique @db.VarChar(6)
   name       String   @db.VarChar(50)
   pinyin     String?  @db.VarChar(100)
   sortOrder  Int      @default(0)

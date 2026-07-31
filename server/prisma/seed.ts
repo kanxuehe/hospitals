@@ -74,11 +74,12 @@ async function main() {
     }
   }
 
-  // 4. 辽宁省 + 14 个城市
+  // 4. 辽宁省 + 14 个城市（行政区划编码参考 GB/T 2260）
   const liaoning = await prisma.province.upsert({
     where: { id: 1 },
-    update: {},
+    update: { code: '210000' },
     create: {
+      code: '210000',
       name: '辽宁省',
       shortName: '辽',
       sortOrder: 1,
@@ -87,20 +88,20 @@ async function main() {
   });
 
   const cities = [
-    { name: '沈阳', pinyin: 'shenyang', sortOrder: 1 },
-    { name: '大连', pinyin: 'dalian', sortOrder: 2 },
-    { name: '鞍山', pinyin: 'anshan', sortOrder: 3 },
-    { name: '抚顺', pinyin: 'fushun', sortOrder: 4 },
-    { name: '本溪', pinyin: 'benxi', sortOrder: 5 },
-    { name: '丹东', pinyin: 'dandong', sortOrder: 6 },
-    { name: '锦州', pinyin: 'jinzhou', sortOrder: 7 },
-    { name: '营口', pinyin: 'yingkou', sortOrder: 8 },
-    { name: '阜新', pinyin: 'fuxin', sortOrder: 9 },
-    { name: '辽阳', pinyin: 'liaoyang', sortOrder: 10 },
-    { name: '盘锦', pinyin: 'panjin', sortOrder: 11 },
-    { name: '铁岭', pinyin: 'tieling', sortOrder: 12 },
-    { name: '朝阳', pinyin: 'chaoyang', sortOrder: 13 },
-    { name: '葫芦岛', pinyin: 'huludao', sortOrder: 14 },
+    { code: '210100', name: '沈阳', pinyin: 'shenyang', sortOrder: 1 },
+    { code: '210200', name: '大连', pinyin: 'dalian', sortOrder: 2 },
+    { code: '210300', name: '鞍山', pinyin: 'anshan', sortOrder: 3 },
+    { code: '210400', name: '抚顺', pinyin: 'fushun', sortOrder: 4 },
+    { code: '210500', name: '本溪', pinyin: 'benxi', sortOrder: 5 },
+    { code: '210600', name: '丹东', pinyin: 'dandong', sortOrder: 6 },
+    { code: '210700', name: '锦州', pinyin: 'jinzhou', sortOrder: 7 },
+    { code: '210800', name: '营口', pinyin: 'yingkou', sortOrder: 8 },
+    { code: '210900', name: '阜新', pinyin: 'fuxin', sortOrder: 9 },
+    { code: '211000', name: '辽阳', pinyin: 'liaoyang', sortOrder: 10 },
+    { code: '211100', name: '盘锦', pinyin: 'panjin', sortOrder: 11 },
+    { code: '211200', name: '铁岭', pinyin: 'tieling', sortOrder: 12 },
+    { code: '211300', name: '朝阳', pinyin: 'chaoyang', sortOrder: 13 },
+    { code: '211400', name: '葫芦岛', pinyin: 'huludao', sortOrder: 14 },
   ];
 
   for (const city of cities) {
@@ -110,6 +111,11 @@ async function main() {
     if (!existing) {
       await prisma.city.create({
         data: { ...city, provinceId: liaoning.id, isEnabled: true },
+      });
+    } else {
+      await prisma.city.update({
+        where: { id: existing.id },
+        data: { code: city.code },
       });
     }
   }

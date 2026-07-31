@@ -26,11 +26,18 @@ export class CityService {
   async create(dto: CreateCityDto, dataScope: { provinceIds: number[] | null }) {
     this.checkProvinceAccess(dto.provinceId, dataScope);
 
-    const existing = await this.prisma.city.findFirst({
+    const existingName = await this.prisma.city.findFirst({
       where: { provinceId: dto.provinceId, name: dto.name },
     });
-    if (existing) {
+    if (existingName) {
       throw new ConflictException('该省份下城市名称已存在');
+    }
+
+    const existingCode = await this.prisma.city.findUnique({
+      where: { code: dto.code },
+    });
+    if (existingCode) {
+      throw new ConflictException('城市编码已存在');
     }
 
     return this.prisma.city.create({ data: dto });

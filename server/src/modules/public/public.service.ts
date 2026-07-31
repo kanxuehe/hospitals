@@ -9,7 +9,7 @@ export class PublicService {
     return this.prisma.province.findMany({
       where: { isEnabled: true },
       orderBy: { sortOrder: 'asc' },
-      select: { id: true, name: true, shortName: true },
+      select: { id: true, code: true, name: true, shortName: true },
     });
   }
 
@@ -19,6 +19,7 @@ export class PublicService {
       orderBy: { sortOrder: 'asc' },
       select: {
         id: true,
+        code: true,
         name: true,
         pinyin: true,
         _count: {
@@ -33,6 +34,7 @@ export class PublicService {
 
     return cities.map((c) => ({
       id: c.id,
+      code: c.code,
       name: c.name,
       pinyin: c.pinyin,
       count: c._count.hospitals,
