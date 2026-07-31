@@ -21,7 +21,6 @@ export class PublicService {
         id: true,
         code: true,
         name: true,
-        pinyin: true,
         _count: {
           select: {
             hospitals: {
@@ -36,7 +35,6 @@ export class PublicService {
       id: c.id,
       code: c.code,
       name: c.name,
-      pinyin: c.pinyin,
       count: c._count.hospitals,
     }));
   }

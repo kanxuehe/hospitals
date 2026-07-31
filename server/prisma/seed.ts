@@ -88,20 +88,20 @@ async function main() {
   });
 
   const cities = [
-    { code: '210100', name: '沈阳', pinyin: 'shenyang', sortOrder: 1 },
-    { code: '210200', name: '大连', pinyin: 'dalian', sortOrder: 2 },
-    { code: '210300', name: '鞍山', pinyin: 'anshan', sortOrder: 3 },
-    { code: '210400', name: '抚顺', pinyin: 'fushun', sortOrder: 4 },
-    { code: '210500', name: '本溪', pinyin: 'benxi', sortOrder: 5 },
-    { code: '210600', name: '丹东', pinyin: 'dandong', sortOrder: 6 },
-    { code: '210700', name: '锦州', pinyin: 'jinzhou', sortOrder: 7 },
-    { code: '210800', name: '营口', pinyin: 'yingkou', sortOrder: 8 },
-    { code: '210900', name: '阜新', pinyin: 'fuxin', sortOrder: 9 },
-    { code: '211000', name: '辽阳', pinyin: 'liaoyang', sortOrder: 10 },
-    { code: '211100', name: '盘锦', pinyin: 'panjin', sortOrder: 11 },
-    { code: '211200', name: '铁岭', pinyin: 'tieling', sortOrder: 12 },
-    { code: '211300', name: '朝阳', pinyin: 'chaoyang', sortOrder: 13 },
-    { code: '211400', name: '葫芦岛', pinyin: 'huludao', sortOrder: 14 },
+    { code: '210100', name: '沈阳', sortOrder: 1 },
+    { code: '210200', name: '大连', sortOrder: 2 },
+    { code: '210300', name: '鞍山', sortOrder: 3 },
+    { code: '210400', name: '抚顺', sortOrder: 4 },
+    { code: '210500', name: '本溪', sortOrder: 5 },
+    { code: '210600', name: '丹东', sortOrder: 6 },
+    { code: '210700', name: '锦州', sortOrder: 7 },
+    { code: '210800', name: '营口', sortOrder: 8 },
+    { code: '210900', name: '阜新', sortOrder: 9 },
+    { code: '211000', name: '辽阳', sortOrder: 10 },
+    { code: '211100', name: '盘锦', sortOrder: 11 },
+    { code: '211200', name: '铁岭', sortOrder: 12 },
+    { code: '211300', name: '朝阳', sortOrder: 13 },
+    { code: '211400', name: '葫芦岛', sortOrder: 14 },
   ];
 
   for (const city of cities) {

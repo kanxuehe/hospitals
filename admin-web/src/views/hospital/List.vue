@@ -16,7 +16,7 @@
             <el-option v-for="c in cities" :key="c.id" :label="c.name" :value="c.id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="等级" v-if="false">
+        <el-form-item label="等级">
           <el-select v-model="query.level" placeholder="全部" clearable style="width: 120px">
             <el-option v-for="l in levels" :key="l.value" :label="l.label" :value="l.value" />
           </el-select>
@@ -57,10 +57,10 @@
         <el-table-column prop="name" label="医院名称" min-width="200" show-overflow-tooltip />
         <el-table-column prop="province.name" label="省份" width="80" />
         <el-table-column prop="city.name" label="城市" width="80" />
-        <el-table-column prop="level" label="等级" width="80" v-if="false" />
-        <el-table-column label="门诊服务" width="90" v-if="false">
+        <!-- <el-table-column prop="level" label="等级" width="80" />
+        <el-table-column label="门诊服务" width="90">
           <template #default="{ row }">{{ row._count?.clinicServices || 0 }}</template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column label="医生" width="70">
           <template #default="{ row }">{{ row._count?.doctors || 0 }}</template>
         </el-table-column>

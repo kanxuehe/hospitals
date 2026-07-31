@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsBoolean, Min, MaxLength, IsOptional, Matches } from 'class-validator';
+import { IsString, IsInt, IsBoolean, Min, MaxLength, Matches } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateCityDto {
@@ -13,11 +13,6 @@ export class CreateCityDto {
   @IsString()
   @MaxLength(50)
   name: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  pinyin?: string;
 
   @IsInt()
   @Min(0)

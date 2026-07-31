@@ -9,7 +9,6 @@
     <el-table :data="list" v-loading="loading" border>
       <el-table-column prop="code" label="编码" width="100" />
       <el-table-column prop="name" label="城市名称" />
-      <el-table-column prop="pinyin" label="拼音" width="150" />
       <el-table-column label="医院数" width="80">
         <template #default="{ row }">{{ row._count?.hospitals || 0 }}</template>
       </el-table-column>
@@ -33,7 +32,6 @@
       <el-form :model="form" label-width="80px">
         <el-form-item label="编码"><el-input v-model="form.code" placeholder="6位数字，如210100" /></el-form-item>
         <el-form-item label="名称"><el-input v-model="form.name" /></el-form-item>
-        <el-form-item label="拼音"><el-input v-model="form.pinyin" /></el-form-item>
         <el-form-item label="排序"><el-input-number v-model="form.sortOrder" :min="0" /></el-form-item>
         <el-form-item label="启用"><el-switch v-model="form.isEnabled" /></el-form-item>
       </el-form>
@@ -59,7 +57,7 @@ const provinces = ref<any[]>([]);
 const selectedProvince = ref<number | undefined>();
 const dialogVisible = ref(false);
 const editing = ref<any>(null);
-const form = reactive({ code: '', name: '', pinyin: '', sortOrder: 0, isEnabled: true, provinceId: 0 });
+const form = reactive({ code: '', name: '', sortOrder: 0, isEnabled: true, provinceId: 0 });
 
 async function fetchData() {
   if (!selectedProvince.value) return;
@@ -76,7 +74,7 @@ function openDialog(row?: any) {
   if (row) {
     Object.assign(form, row);
   } else {
-    Object.assign(form, { code: '', name: '', pinyin: '', sortOrder: 0, isEnabled: true, provinceId: selectedProvince.value });
+    Object.assign(form, { code: '', name: '', sortOrder: 0, isEnabled: true, provinceId: selectedProvince.value });
   }
   dialogVisible.value = true;
 }
