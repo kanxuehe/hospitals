@@ -7,8 +7,9 @@ import { DictModule } from './modules/dict/dict.module';
 import { HospitalModule } from './modules/hospital/hospital.module';
 import { ClinicServiceModule } from './modules/clinic-service/clinic-service.module';
 import { DoctorModule } from './modules/doctor/doctor.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ProvinceModule, CityModule, DictModule, HospitalModule, ClinicServiceModule, DoctorModule],
+  imports: [PrismaModule, AuthModule, ProvinceModule, CityModule, DictModule, HospitalModule, ClinicServiceModule, DoctorModule, UserModule],
 })
 export class AppModule {}
