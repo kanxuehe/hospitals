@@ -8,8 +8,9 @@ import { HospitalModule } from './modules/hospital/hospital.module';
 import { ClinicServiceModule } from './modules/clinic-service/clinic-service.module';
 import { DoctorModule } from './modules/doctor/doctor.module';
 import { UserModule } from './modules/user/user.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ProvinceModule, CityModule, DictModule, HospitalModule, ClinicServiceModule, DoctorModule, UserModule],
+  imports: [PrismaModule, AuthModule, ProvinceModule, CityModule, DictModule, HospitalModule, ClinicServiceModule, DoctorModule, UserModule, DashboardModule],
 })
 export class AppModule {}
