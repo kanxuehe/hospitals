@@ -1,6 +1,3 @@
-// Prisma schema
-// Docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,15 +7,200 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Temporary placeholder model.
-// Why: NestJS eagerly instantiates PrismaService (it implements OnModuleInit)
-// during bootstrap, which constructs PrismaClient. With an empty schema
-// `prisma generate` emits nothing and `new PrismaClient()` throws
-// "@prisma/client did not initialize yet", so the app cannot boot.
-// This model lets the client be generated so the scaffold starts cleanly.
-// Task 2 will replace this entire schema with the full data model
-// (Province, City, Hospital, ClinicService, ...).
-model ScaffoldPlaceholder {
+model Province {
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(50)
+  shortName  String   @db.VarChar(10)
+  sortOrder  Int      @default(0)
+  isEnabled  Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  cities   City[]
+  hospitals Hospital[]
+  users    UserProvince[]
+
+  @@map("provinces")
+}
+
+model City {
+  id         Int      @id @default(autoincrement())
+  provinceId Int      @map("province_id")
+  name       String   @db.VarChar(50)
+  pinyin     String?  @db.VarChar(100)
+  sortOrder  Int      @default(0)
+  isEnabled  Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  province  Province @relation(fields: [provinceId], references: [id])
+  hospitals Hospital[]
+
+  @@map("cities")
+}
+
+model Hospital {
+  id          Int       @id @default(autoincrement())
+  provinceId  Int       @map("province_id")
+  cityId      Int       @map("city_id")
+  name        String    @db.VarChar(200)
+  level       String    @db.VarChar(50)
+  address     String?   @db.VarChar(500)
+  mapLng      Float?    @map("map_lng")
+  mapLat      Float?    @map("map_lat")
+  intro       String?   @db.Text
+  logo        String?   @db.VarChar(500)
+  isPublished Boolean   @default(false) @map("is_published")
+  sortOrder   Int       @default(0) @map("sort_order")
+  createdBy   Int       @map("created_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  province      Province       @relation(fields: [provinceId], references: [id])
+  city          City           @relation(fields: [cityId], references: [id])
+  clinicServices ClinicService[]
+  doctors       Doctor[]
+  images        HospitalImage[]
+  creator       User           @relation(fields: [createdBy], references: [id])
+
+  @@index([provinceId])
+  @@index([cityId])
+  @@index([isPublished])
+  @@map("hospitals")
+}
+
+model ClinicService {
+  id          Int      @id @default(autoincrement())
+  hospitalId  Int      @map("hospital_id")
+  clinicType  String   @db.VarChar(50) @map("clinic_type")
+  intro       String?  @db.VarChar(500)
+  sortOrder   Int      @default(0) @map("sort_order")
+  isPublished Boolean  @default(true) @map("is_published")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  hospital   Hospital         @relation(fields: [hospitalId], references: [id])
+  schedules  ClinicSchedule[]
+  phones     PhoneContact[]
+
+  @@index([hospitalId])
+  @@map("clinic_services")
+}
+
+model ClinicSchedule {
+  id              Int      @id @default(autoincrement())
+  clinicServiceId Int      @map("clinic_service_id")
+  dayOfWeek       Int      @map("day_of_week")
+  hasMorning      Boolean  @default(false) @map("has_morning")
+  hasAfternoon    Boolean  @default(false) @map("has_afternoon")
+  hasEvening      Boolean  @default(false) @map("has_evening")
+  remark          String?  @db.VarChar(200)
+
+  clinicService ClinicService @relation(fields: [clinicServiceId], references: [id], onDelete: Cascade)
+
+  @@unique([clinicServiceId, dayOfWeek])
+  @@map("clinic_schedules")
+}
+
+model PhoneContact {
+  id              Int      @id @default(autoincrement())
+  clinicServiceId Int      @map("clinic_service_id")
+  phoneName       String   @db.VarChar(50) @map("phone_name")
+  phoneNumber     String   @db.VarChar(50) @map("phone_number")
+  contactPerson   String?  @db.VarChar(50) @map("contact_person")
+  remark          String?  @db.VarChar(200)
+  sortOrder       Int      @default(0) @map("sort_order")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  clinicService ClinicService @relation(fields: [clinicServiceId], references: [id], onDelete: Cascade)
+
+  @@index([clinicServiceId])
+  @@map("phone_contacts")
+}
+
+model Doctor {
+  id          Int      @id @default(autoincrement())
+  hospitalId  Int      @map("hospital_id")
+  name        String   @db.VarChar(50)
+  avatar      String?  @db.VarChar(500)
+  title       String   @db.VarChar(50)
+  intro       String?  @db.Text
+  specialty   String?  @db.Text
+  sortOrder   Int      @default(0) @map("sort_order")
+  isPublished Boolean  @default(true) @map("is_published")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  hospital Hospital @relation(fields: [hospitalId], references: [id])
+
+  @@index([hospitalId])
+  @@map("doctors")
+}
+
+model HospitalImage {
+  id         Int    @id @default(autoincrement())
+  hospitalId Int    @map("hospital_id")
+  url        String @db.VarChar(500)
+  type       String @db.VarChar(20)
+  sortOrder  Int    @default(0) @map("sort_order")
+
+  hospital Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@map("hospital_images")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique @db.VarChar(50)
+  passwordHash String    @map("password_hash")
+  name         String    @db.VarChar(50)
+  phone        String?   @db.VarChar(20)
+  role         String    @db.VarChar(20) // super_admin | province_admin
+  isEnabled    Boolean   @default(true) @map("is_enabled")
+  lastLoginAt  DateTime? @map("last_login_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  provinces    UserProvince[]
+  hospitals    Hospital[]
+
+  @@map("users")
+}
+
+model UserProvince {
+  id         Int @id @default(autoincrement())
+  userId     Int @map("user_id")
+  provinceId Int @map("province_id")
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  province Province @relation(fields: [provinceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provinceId])
+  @@map("user_provinces")
+}
+
+model DictType {
   id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
+  code      String   @unique @db.VarChar(50)
+  name      String   @db.VarChar(50)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  items DictItem[]
+
+  @@map("dict_types")
+}
+
+model DictItem {
+  id         Int      @id @default(autoincrement())
+  dictTypeId Int      @map("dict_type_id")
+  label      String   @db.VarChar(50)
+  value      String   @db.VarChar(50)
+  sortOrder  Int      @default(0) @map("sort_order")
+  isEnabled  Boolean  @default(true) @map("is_enabled")
+
+  dictType DictType @relation(fields: [dictTypeId], references: [id], onDelete: Cascade)
+
+  @@map("dict_items")
 }
