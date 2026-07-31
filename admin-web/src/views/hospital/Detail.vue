@@ -1,6 +1,6 @@
 <template>
   <div v-loading="loading">
-    <el-page-header @back="$router.back()" :content="hospital?.name || '医院详情'" style="margin-bottom: 16px" />
+    <el-page-header @back="$router.back()" :content="isCreate ? '新增医院' : (hospital?.name || '医院详情')" style="margin-bottom: 16px" />
 
     <el-tabs v-model="activeTab" v-if="hospital">
       <!-- Tab 1: 基本信息 -->
@@ -49,7 +49,7 @@
       </el-tab-pane>
 
       <!-- Tab 2: 门诊服务 -->
-      <el-tab-pane label="门诊服务" name="clinic">
+      <el-tab-pane label="门诊服务" name="clinic" v-if="!isCreate">
         <div style="margin-bottom: 12px">
           <el-button type="success" @click="showClinicDialog = true">新增门诊服务</el-button>
         </div>
@@ -87,7 +87,7 @@
       </el-tab-pane>
 
       <!-- Tab 3: 医生 -->
-      <el-tab-pane label="医生" name="doctors">
+      <el-tab-pane label="医生" name="doctors" v-if="!isCreate">
         <div style="margin-bottom: 12px">
           <el-button type="success" @click="showDoctorDialog = true">新增医生</el-button>
         </div>
@@ -151,10 +151,10 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { useAuthStore } from '../../stores/auth';
-import { getHospitalDetail, updateHospital } from '../../api/hospital';
+import { getHospitalDetail, updateHospital, createHospital } from '../../api/hospital';
 import { getProvinces } from '../../api/province';
 import { getCities } from '../../api/city';
 import { getDictItems } from '../../api/dict';
@@ -164,8 +164,10 @@ import ClinicScheduleEditor from '../../components/ClinicScheduleEditor.vue';
 import PhoneContactEditor from '../../components/PhoneContactEditor.vue';
 
 const route = useRoute();
+const router = useRouter();
 const authStore = useAuthStore();
-const id = Number(route.params.id);
+const isCreate = route.params.id === 'new';
+const id = isCreate ? 0 : Number(route.params.id);
 
 const loading = ref(true);
 const saving = ref(false);
@@ -178,6 +180,7 @@ const levels = ref<any[]>([]);
 const clinicTypes = ref<any[]>([]);
 
 const form = reactive<any>({});
+
 const expandedClinics = ref<number[]>([]);
 
 const showClinicDialog = ref(false);
@@ -192,16 +195,41 @@ const phoneEditors = ref<any[]>([]);
 async function loadData() {
   loading.value = true;
   try {
-    hospital.value = await getHospitalDetail(id);
-    Object.assign(form, hospital.value);
     provinces.value = await getProvinces() as unknown as any[];
     levels.value = await getDictItems('hospital_level') as unknown as any[];
     clinicTypes.value = await getDictItems('clinic_type') as unknown as any[];
-    if (form.provinceId) {
-      cities.value = await getCities(form.provinceId) as unknown as any[];
-    }
-    if (hospital.value.clinicServices?.length > 0) {
-      expandedClinics.value = [hospital.value.clinicServices[0].id];
+
+    if (isCreate) {
+      // 新增模式：初始化空表单
+      const provinceIds = authStore.getProvinceIds();
+      const defaultProvinceId = authStore.isSuperAdmin()
+        ? provinces.value[0]?.id
+        : provinceIds[0];
+      Object.assign(form, {
+        name: '',
+        provinceId: defaultProvinceId,
+        cityId: undefined,
+        level: '',
+        address: '',
+        intro: '',
+        logo: '',
+        sortOrder: 0,
+        isPublished: false,
+      });
+      hospital.value = { clinicServices: [], doctors: [] };
+      if (defaultProvinceId) {
+        cities.value = await getCities(defaultProvinceId) as unknown as any[];
+      }
+    } else {
+      // 编辑模式：加载医院详情
+      hospital.value = await getHospitalDetail(id);
+      Object.assign(form, hospital.value);
+      if (form.provinceId) {
+        cities.value = await getCities(form.provinceId) as unknown as any[];
+      }
+      if (hospital.value.clinicServices?.length > 0) {
+        expandedClinics.value = [hospital.value.clinicServices[0].id];
+      }
     }
   } finally {
     loading.value = false;
@@ -220,8 +248,14 @@ async function onProvinceChange() {
 async function saveBasic() {
   saving.value = true;
   try {
-    await updateHospital(id, form);
-    ElMessage.success('保存成功');
+    if (isCreate) {
+      const created = await createHospital(form) as any;
+      ElMessage.success('创建成功');
+      router.replace(`/hospitals/${created.id}`);
+    } else {
+      await updateHospital(id, form);
+      ElMessage.success('保存成功');
+    }
   } finally {
     saving.value = false;
   }
