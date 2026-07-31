@@ -1,98 +1,114 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 医院数据管理系统 - 后端服务
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+基于 NestJS + Prisma + MySQL 的后端 API 服务。
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 环境要求
 
-## Description
+- Node.js >= 20
+- MySQL >= 5.7（本地默认 `localhost:3306`）
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 环境变量配置
 
-## Project setup
+复制或创建 `server/.env`，配置数据库连接：
+
+```
+DATABASE_URL="mysql://root:@localhost:3306/hospitals"
+JWT_SECRET="your-secret-key-change-in-production"
+JWT_ACCESS_EXPIRES="2h"
+JWT_REFRESH_EXPIRES="7d"
+UPLOAD_DIR="./uploads"
+```
+
+## 项目安装
 
 ```bash
 $ npm install
 ```
 
-## Compile and run the project
+## 启动服务
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
+# 开发模式（监听文件变更，自动重启）
 $ npm run start:dev
 
-# production mode
+# 普通模式
+$ npm run start
+
+# 生产模式（需先构建）
+$ npm run build
 $ npm run start:prod
 ```
 
-## Run tests
+服务默认监听 `http://localhost:3000`。
+
+## 数据库操作（Prisma）
+
+### 初始化/迁移
 
 ```bash
-# unit tests
-$ npm run test
+# 根据 schema.prisma 生成迁移文件并应用到数据库
+$ npx prisma migrate dev --name init
 
-# e2e tests
-$ npm run test:e2e
+# 应用已有的迁移（生产环境部署用）
+$ npx prisma migrate deploy
 
-# test coverage
-$ npm run test:cov
+# 跳过迁移文件，直接把 schema 同步到数据库（开发用）
+$ npx prisma db push
+
+# 生成/更新 Prisma Client
+$ npx prisma generate
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 初始化种子数据
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# 创建超级管理员（admin / admin123）、字典数据、辽宁省及 14 个城市
+$ npx prisma db seed
+# 或
+$ npx ts-node prisma/seed.ts
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 迁移业务数据
 
-## Resources
+```bash
+# 将静态 JS 数据迁移到 MySQL（示例占位数据，需先执行 seed）
+$ npx ts-node prisma/migrate-data.ts
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+### 可视化查看数据
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+# 启动 Prisma Studio，浏览器访问 http://localhost:5555
+$ npx prisma studio
+```
 
-## Support
+### 常用 Prisma CLI 速查
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+| 命令 | 说明 |
+| --- | --- |
+| `npx prisma migrate dev` | 开发环境：生成并应用迁移 |
+| `npx prisma migrate deploy` | 生产环境：应用已有迁移 |
+| `npx prisma db push` | 直接同步 schema（不生成迁移文件） |
+| `npx prisma generate` | 重新生成 Prisma Client |
+| `npx prisma db seed` | 执行种子脚本（seed.ts） |
+| `npx prisma studio` | 启动数据库可视化工具 |
+| `npx prisma validate` | 校验 schema.prisma 语法 |
+| `npx prisma format` | 格式化 schema.prisma |
 
-## Stay in touch
+> Prisma 模型定义见 `prisma/schema.prisma`，迁移历史见 `prisma/migrations/`。
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## 其他常用命令
 
-## License
+```bash
+# 构建
+$ npm run build
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+# 代码检查与格式化
+$ npm run lint
+$ npm run format
+
+# 测试
+$ npm run test        # 单元测试
+$ npm run test:e2e    # 端到端测试
+$ npm run test:cov    # 测试覆盖率
+```

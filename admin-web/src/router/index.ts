@@ -12,7 +12,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('../layouts/AdminLayout.vue'),
-    redirect: '/dashboard',
+    redirect: '/hospitals',
     children: [
       {
         path: 'dashboard',
@@ -101,7 +101,7 @@ router.beforeEach(async (to, from, next) => {
 
   // 超管路由权限
   if (to.meta.superAdmin && !authStore.isSuperAdmin()) {
-    next('/dashboard');
+    next('/hospitals');
     return;
   }
 

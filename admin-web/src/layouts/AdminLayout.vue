@@ -14,11 +14,6 @@
         text-color="#bfcbd9"
         active-text-color="#409EFF"
       >
-        <el-menu-item index="/dashboard">
-          <el-icon><DataAnalysis /></el-icon>
-          <span>首页</span>
-        </el-menu-item>
-
         <el-sub-menu index="hospital">
           <template #title>
             <el-icon><OfficeBuilding /></el-icon>

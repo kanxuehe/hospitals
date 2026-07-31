@@ -34,12 +34,13 @@ const hospitalData = {
     { id: 'yingkou', name: '营口' },
     { id: 'fuxin', name: '阜新' },
     { id: 'liaoyang', name: '辽阳' },
-    { id: 'panjin', name: '盘锦' },
     { id: 'tieling', name: '铁岭' },
     { id: 'chaoyang', name: '朝阳' },
+    { id: 'panjin', name: '盘锦' },
     { id: 'huludao', name: '葫芦岛' },
   ],
   hospitals: [
+    // ===== 大连 =====
     {
       id: 1,
       cityId: 'dalian',
@@ -52,7 +53,384 @@ const hospitalData = {
         },
       ],
     },
-    // TODO: 替换为从 hospital-data.js 提取的完整 33 家医院数据
+    {
+      id: 2,
+      cityId: 'dalian',
+      name: '大连大学附属新华医院',
+      services: [
+        {
+          clinic: '造口伤口门诊',
+          schedule: '每周一至周五',
+          contacts: [{ name: '吕雪', phone: '13940845569' }],
+        },
+      ],
+    },
+    {
+      id: 3,
+      cityId: 'dalian',
+      name: '大连大学附属中山医院',
+      services: [
+        { clinic: '造口门诊', schedule: '每周一至周五', contacts: [] },
+      ],
+    },
+    {
+      id: 4,
+      cityId: 'dalian',
+      name: '大连市友谊医院',
+      services: [{ clinic: '造口门诊', schedule: '每周一下午', contacts: [] }],
+    },
+    {
+      id: 5,
+      cityId: 'dalian',
+      name: '大连医科大学附属第二医院',
+      services: [
+        {
+          clinic: '造口伤口门诊',
+          schedule: '周一至周日',
+          contacts: [{ name: '于倩', phone: '17709877789' }],
+        },
+      ],
+    },
+    {
+      id: 6,
+      cityId: 'dalian',
+      name: '大连市中心医院',
+      services: [
+        {
+          clinic: '造口伤口门诊',
+          schedule: '周一至周五全天，周六上午',
+          contacts: [{ name: '姜秀琴', phone: '15509850692' }],
+        },
+      ],
+    },
+    {
+      id: 7,
+      cityId: 'dalian',
+      name: '庄河市中心医院',
+      services: [{ clinic: '造口门诊', schedule: '周一至周五', contacts: [] }],
+    },
+    {
+      id: 8,
+      cityId: 'dalian',
+      name: '旅顺口区人民医院',
+      services: [{ clinic: '造口门诊', schedule: '周一至周五', contacts: [] }],
+    },
+
+    // ===== 抚顺 =====
+    {
+      id: 9,
+      cityId: 'fushun',
+      name: '抚顺矿务局总医院',
+      services: [
+        {
+          clinic: '造口门诊',
+          schedule: '周一到周五全天',
+          contacts: [{ name: '赵晶', phone: '15694138322' }],
+        },
+      ],
+    },
+
+    // ===== 本溪 =====
+    {
+      id: 10,
+      cityId: 'benxi',
+      name: '本溪市中心医院',
+      services: [
+        {
+          clinic: '造口伤口门诊',
+          schedule: '周一至周五全天',
+          contacts: [{ name: '张琳', phone: '13841486711' }],
+        },
+      ],
+    },
+
+    // ===== 丹东 =====
+    {
+      id: 11,
+      cityId: 'dandong',
+      name: '丹东市中心医院',
+      services: [
+        {
+          clinic: '造口伤口门诊',
+          schedule: '周一至周五全天，周六周日上午',
+          contacts: [{ name: '窦雪周', phone: '15841535240' }],
+        },
+      ],
+    },
+    {
+      id: 12,
+      cityId: 'dandong',
+      name: '凤城市中心医院',
+      services: [
+        {
+          clinic: '造口伤口门诊',
+          schedule: '周一至周五全天',
+          contacts: [{ name: '傅莉', phone: '18642507763' }],
+        },
+      ],
+    },
+
+    // ===== 鞍山 =====
+    {
+      id: 13,
+      cityId: 'anshan',
+      name: '鞍山市肿瘤医院',
+      services: [
+        {
+          clinic: '造口门诊',
+          schedule: '周一至周五全天',
+          contacts: [{ name: '周林', phone: '18504126081' }],
+        },
+      ],
+    },
+
+    // ===== 辽阳 =====
+    {
+      id: 14,
+      cityId: 'liaoyang',
+      name: '辽阳市中心医院',
+      services: [
+        {
+          clinic: '造口门诊',
+          schedule: '周一至周五全天',
+          contacts: [{ name: '吴雪垠', phone: '15140942575' }],
+        },
+      ],
+    },
+
+    // ===== 锦州 =====
+    {
+      id: 15,
+      cityId: 'jinzhou',
+      name: '锦州医科大学附属第一医院',
+      services: [
+        { clinic: '造口伤口门诊', schedule: '周一至周五', contacts: [] },
+      ],
+    },
+
+    // ===== 葫芦岛 =====
+    {
+      id: 16,
+      cityId: 'huludao',
+      name: '葫芦岛市中心医院龙湾院区',
+      services: [
+        {
+          clinic: '造口伤口门诊',
+          schedule: '周一至周五',
+          contacts: [{ name: '梁瀛', phone: '13372906182' }],
+        },
+      ],
+    },
+    {
+      id: 17,
+      cityId: 'huludao',
+      name: '葫芦岛市中心医院连山院区',
+      services: [
+        { clinic: '造口伤口门诊', schedule: '周五下午半天', contacts: [] },
+      ],
+    },
+    {
+      id: 18,
+      cityId: 'huludao',
+      name: '绥中县医院',
+      services: [
+        {
+          clinic: '造口伤口门诊',
+          schedule: '周一至周五全天',
+          contacts: [{ name: '闵祥娟', phone: '1804293718' }],
+        },
+      ],
+    },
+
+    // ===== 盘锦 =====
+    {
+      id: 19,
+      cityId: 'panjin',
+      name: '盘锦市中心医院',
+      services: [
+        { clinic: '造口伤口门诊', schedule: '周一至周五上午', contacts: [] },
+      ],
+    },
+    {
+      id: 20,
+      cityId: 'panjin',
+      name: '盘锦辽油宝石花医院',
+      services: [
+        {
+          clinic: '胃肠外科造口伤口门诊',
+          schedule: '周一至周五',
+          contacts: [{ name: '咨询电话', phone: '0427-7650714' }],
+        },
+      ],
+    },
+
+    // ===== 营口 =====
+    {
+      id: 21,
+      cityId: 'yingkou',
+      name: '营口市中心医院',
+      services: [
+        { clinic: '造口伤口门诊', schedule: '周一至周五', contacts: [] },
+      ],
+    },
+    // ===== 阜新 =====
+    {
+      id: 22,
+      cityId: 'fuxin',
+      name: '阜新市中心医院',
+      services: [
+        {
+          clinic: '造口门诊',
+          schedule: '周一至周五',
+          contacts: [{ name: '贾立华', phone: '13470305575' }],
+        },
+      ],
+    },
+    {
+      id: 23,
+      cityId: 'fuxin',
+      name: '辽宁省健康产业集团阜新矿总医院',
+      services: [
+        {
+          clinic: '造口门诊',
+          schedule: '周一至周五',
+          contacts: [{ name: '周玲玲', phone: '17541800310' }],
+        },
+      ],
+    },
+
+    // ===== 朝阳 =====
+    {
+      id: 24,
+      cityId: 'chaoyang',
+      name: '朝阳市中心医院',
+      services: [
+        {
+          clinic: '',
+          schedule: '周一到周五全天',
+          contacts: [
+            { name: '郭秀荣', phone: '18040159175' },
+            { name: '宁雪娇', phone: '18040159122' },
+          ],
+        },
+      ],
+    },
+
+    // ===== 沈阳 =====
+    {
+      id: 25,
+      cityId: 'shenyang',
+      name: '中国医科大学附属第一医院',
+      services: [
+        { clinic: '造口伤口门诊', schedule: '周一至周五上午', contacts: [] },
+      ],
+    },
+    {
+      id: 26,
+      cityId: 'shenyang',
+      name: '辽宁省人民医院',
+      services: [
+        {
+          clinic: '造口门诊',
+          schedule: '每周一、三、五下午',
+          contacts: [{ name: '林老师', phone: '17702487899' }],
+        },
+      ],
+    },
+    {
+      id: 27,
+      cityId: 'shenyang',
+      name: '辽宁省肛肠医院（辽宁中医药大学附属第三医院）',
+      services: [
+        {
+          clinic: '造口门诊',
+          schedule: '每周五下午',
+          contacts: [{ name: '沈老师', phone: '13998318090' }],
+        },
+      ],
+    },
+    {
+      id: 28,
+      cityId: 'shenyang',
+      name: '辽宁省肿瘤医院',
+      services: [
+        {
+          clinic: '造口门诊',
+          schedule: '周一到周五',
+          contacts: [{ name: '陈媛媛', phone: '13940439369' }],
+        },
+      ],
+    },
+    {
+      id: 29,
+      cityId: 'shenyang',
+      name: '沈阳医学院附属中心医院',
+      services: [
+        {
+          clinic: '',
+          schedule: '周一到周五全天',
+          contacts: [{ name: '张凤坤', phone: '18002479070' }],
+        },
+      ],
+    },
+    {
+      id: 30,
+      cityId: 'shenyang',
+      name: '北部战区总医院（原陆军总院）',
+      services: [
+        {
+          clinic: '造口伤口门诊（普外科）',
+          schedule: '周一至周五下午1:30',
+          contacts: [{ name: '李剑茹', phone: '13591651935' }],
+        },
+        {
+          clinic: '造口伤口门诊（泌尿外科）',
+          schedule: '周三下午1:30',
+          contacts: [{ name: '姜雨杉', phone: '13936035129' }],
+        },
+      ],
+    },
+    {
+      id: 31,
+      cityId: 'shenyang',
+      name: '中国医科大学附属第四医院',
+      services: [
+        {
+          clinic: '造口伤口门诊',
+          schedule: '周一至周五下午1:30',
+          contacts: [{ name: '宋岩', phone: '18900912725' }],
+        },
+      ],
+    },
+    {
+      id: 32,
+      cityId: 'shenyang',
+      name: '中国医科大学附属盛京医院',
+      services: [
+        {
+          clinic: '造口门诊（肠造口）',
+          schedule: '周一、周五',
+          contacts: [{ name: '韩丽', phone: '' }],
+        },
+        {
+          clinic: '造口门诊（泌尿造口）',
+          schedule: '周一、二、五',
+          contacts: [{ name: '李新新', phone: '' }],
+        },
+      ],
+    },
+    {
+      id: 33,
+      cityId: 'shenyang',
+      name: '东北国际医院浑南院区',
+      services: [
+        {
+          clinic: '伤口造口中心',
+          schedule: '周一至周日全天',
+          contacts: [{ name: '李洪瑶', phone: '13591405666' }],
+        },
+      ],
+    },
   ],
 };
 
@@ -123,20 +501,20 @@ function parseSchedule(schedule: string): boolean[][] {
 // 城市名 -> cityId 映射（通过拼音匹配，用于兼容旧数据）
 // ============================================================
 const cityPinyinMap: Record<string, string> = {
-  '沈阳': 'shenyang',
-  '大连': 'dalian',
-  '鞍山': 'anshan',
-  '抚顺': 'fushun',
-  '本溪': 'benxi',
-  '丹东': 'dandong',
-  '锦州': 'jinzhou',
-  '营口': 'yingkou',
-  '阜新': 'fuxin',
-  '辽阳': 'liaoyang',
-  '盘锦': 'panjin',
-  '铁岭': 'tieling',
-  '朝阳': 'chaoyang',
-  '葫芦岛': 'huludao',
+  沈阳: 'shenyang',
+  大连: 'dalian',
+  鞍山: 'anshan',
+  抚顺: 'fushun',
+  本溪: 'benxi',
+  丹东: 'dandong',
+  锦州: 'jinzhou',
+  营口: 'yingkou',
+  阜新: 'fuxin',
+  辽阳: 'liaoyang',
+  盘锦: 'panjin',
+  铁岭: 'tieling',
+  朝阳: 'chaoyang',
+  葫芦岛: 'huludao',
 };
 
 async function main() {
