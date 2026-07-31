@@ -1,1 +1,0 @@
-import{_ as o,c as n,i as s,o as t}from"./index-BURzf25T.js";const r={},a={class:"dashboard"};function c(d,e){return t(),n("div",a,[...e[0]||(e[0]=[s("h2",null,"首页",-1),s("p",null,"欢迎使用造口伤口门诊后台管理系统",-1)])])}const _=o(r,[["render",c]]);export{_ as default};

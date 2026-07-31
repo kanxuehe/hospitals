@@ -1,1 +1,0 @@
-import{_ as t,c as o,i as s,o as n}from"./index-BURzf25T.js";const a={},c={class:"page-container"};function r(_,e){return n(),o("div",c,[...e[0]||(e[0]=[s("h2",null,"医院详情",-1)])])}const l=t(a,[["render",r]]);export{l as default};

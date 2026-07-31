@@ -1,1 +1,0 @@
-import{_ as s,c as t,i as o,o as n}from"./index-BURzf25T.js";const c={},r={class:"page-container"};function a(_,e){return n(),t("div",r,[...e[0]||(e[0]=[o("h2",null,"省份管理",-1)])])}const l=s(c,[["render",a]]);export{l as default};
