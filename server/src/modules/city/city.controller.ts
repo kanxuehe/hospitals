@@ -14,11 +14,10 @@ import {
 import { CityService } from './city.service';
 import { CreateCityDto } from './dto/create-city.dto';
 import { UpdateCityDto } from './dto/update-city.dto';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { DataScopeGuard } from '../../common/guards/data-scope.guard';
 
 @Controller('api/admin/cities')
-@UseGuards(JwtAuthGuard, DataScopeGuard)
+@UseGuards(DataScopeGuard)
 export class CityController {
   constructor(private cityService: CityService) {}
 

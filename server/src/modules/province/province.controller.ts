@@ -12,12 +12,11 @@ import {
 import { ProvinceService } from './province.service';
 import { CreateProvinceDto } from './dto/create-province.dto';
 import { UpdateProvinceDto } from './dto/update-province.dto';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 
 @Controller('api/admin/provinces')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(RolesGuard)
 @Roles('super_admin')
 export class ProvinceController {
   constructor(private provinceService: ProvinceService) {}

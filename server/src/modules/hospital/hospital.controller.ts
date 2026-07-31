@@ -15,12 +15,11 @@ import { HospitalService } from './hospital.service';
 import { CreateHospitalDto } from './dto/create-hospital.dto';
 import { UpdateHospitalDto } from './dto/update-hospital.dto';
 import { QueryHospitalDto } from './dto/query-hospital.dto';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { DataScopeGuard } from '../../common/guards/data-scope.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 @Controller('api/admin/hospitals')
-@UseGuards(JwtAuthGuard, DataScopeGuard)
+@UseGuards(DataScopeGuard)
 export class HospitalController {
   constructor(private hospitalService: HospitalService) {}
 

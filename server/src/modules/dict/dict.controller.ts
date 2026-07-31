@@ -11,12 +11,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { DictService } from './dict.service';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 
 @Controller('api/admin/dict')
-@UseGuards(JwtAuthGuard)
 export class DictController {
   constructor(private dictService: DictService) {}
 

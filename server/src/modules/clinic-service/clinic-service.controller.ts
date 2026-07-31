@@ -14,11 +14,10 @@ import { CreateClinicServiceDto } from './dto/create-clinic-service.dto';
 import { UpdateClinicServiceDto } from './dto/update-clinic-service.dto';
 import { SaveScheduleDto } from './dto/save-schedule.dto';
 import { CreatePhoneDto } from './dto/save-phone.dto';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { DataScopeGuard } from '../../common/guards/data-scope.guard';
 
 @Controller('api/admin/clinic-services')
-@UseGuards(JwtAuthGuard, DataScopeGuard)
+@UseGuards(DataScopeGuard)
 export class ClinicServiceController {
   constructor(private clinicServiceService: ClinicServiceService) {}
 

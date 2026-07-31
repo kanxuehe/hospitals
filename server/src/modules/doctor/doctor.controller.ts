@@ -15,11 +15,10 @@ import { DoctorService } from './doctor.service';
 import { CreateDoctorDto } from './dto/create-doctor.dto';
 import { UpdateDoctorDto } from './dto/update-doctor.dto';
 import { QueryDoctorDto } from './dto/query-doctor.dto';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { DataScopeGuard } from '../../common/guards/data-scope.guard';
 
 @Controller('api/admin/doctors')
-@UseGuards(JwtAuthGuard, DataScopeGuard)
+@UseGuards(DataScopeGuard)
 export class DoctorController {
   constructor(private doctorService: DoctorService) {}
 
