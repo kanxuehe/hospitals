@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>辽宁省造口伤口护理门诊查询</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-secondary: #64748b;
+      --border: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #1e40af, #2563eb);
+      color: #fff;
+      padding: 20px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .header h1 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .header h1 span { opacity: 0.85; font-weight: 400; font-size: 0.9rem; margin-left: 8px; }
+
+    .province-selector select {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      font-size: 0.95rem;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      min-width: 140px;
+    }
+    .province-selector select option { color: #1e293b; }
+
+    /* Layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 20px;
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    /* Sidebar - City List */
+    .sidebar {
+      width: 200px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 100px;
+    }
+
+    .sidebar-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .sidebar-title {
+      padding: 14px 16px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .city-list { list-style: none; }
+
+    .city-item {
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .city-item:hover { background: var(--primary-light); color: var(--primary); }
+    .city-item.active {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-left-color: var(--primary);
+      font-weight: 600;
+    }
+
+    .city-count {
+      font-size: 0.75rem;
+      background: var(--bg);
+      color: var(--text-secondary);
+      padding: 1px 8px;
+      border-radius: 10px;
+    }
+    .city-item.active .city-count {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* Main Content */
+    .main { flex: 1; min-width: 0; }
+
+    .stats-bar {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      align-items: center;
+    }
+    .stats-bar .count { font-weight: 700; color: var(--primary); font-size: 1.3rem; }
+
+    .loading-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+    .loading-state .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    /* Hospital Card */
+    .hospital-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    .hospital-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+    .hospital-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hospital-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .hospital-level {
+      display: inline-block;
+      padding: 2px 10px;
+      background: #fef3c7;
+      color: #92400e;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .hospital-city {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .service-list { padding: 0 20px; }
+
+    .service-item {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .service-item:last-child { border-bottom: none; }
+
+    .service-type {
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+
+    .service-schedule {
+      font-size: 0.85rem;
+      color: #475569;
+      margin-bottom: 4px;
+    }
+
+    .service-contacts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .contact-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      background: var(--bg);
+      padding: 3px 10px;
+      border-radius: 6px;
+    }
+    .contact-tag .phone {
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .hospital-footer {
+      padding: 0 20px 20px;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+    .hospital-footer .address {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Error state */
+    .error-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #dc2626;
+      background: #fef2f2;
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container { flex-direction: column; padding: 16px 12px; }
+      .sidebar {
+        width: 100%;
+        position: static;
+      }
+      .sidebar-card { display: flex; overflow-x: auto; }
+      .sidebar-title { display: none; }
+      .city-list { display: flex; }
+      .city-item {
+        white-space: nowrap;
+        flex-shrink: 0;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+      }
+      .city-item.active { border-left: none; border-bottom-color: var(--primary); }
+      .header h1 { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-inner">
+      <h1>造口伤口护理门诊查询<span>| 辽宁省</span></h1>
+      <div class="province-selector">
+        <select id="provinceSelect" onchange="onProvinceChange()">
+          <option value="">加载中...</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-card">
+        <div class="sidebar-title">城市列表</div>
+        <ul class="city-list" id="cityList">
+          <li class="city-item active" data-city-id="" onclick="onCityClick('', this)">全部</li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <div class="stats-bar" id="statsBar"></div>
+      <div class="loading-state" id="loadingState">
+        <div class="spinner"></div>
+        <div>正在加载医院数据...</div>
+      </div>
+      <div id="hospitalList"></div>
+    </main>
+  </div>
+
+  <script>
+    // ============================================================
+    // 数据状态
+    // ============================================================
+    let provinces = [];
+    let cities = [];
+    let hospitals = [];
+    let currentProvinceId = 1; // 默认辽宁
+    let currentCityId = '';
+
+    const API_BASE = window.location.origin;
+
+    // ============================================================
+    // 数据加载
+    // ============================================================
+
+    async function loadProvinces() {
+      try {
+        const resp = await fetch(`${API_BASE}/api/public/provinces`);
+        const result = await resp.json();
+        provinces = result.data || [];
+        renderProvinceSelector();
+      } catch (err) {
+        console.error('加载省份失败:', err);
+      }
+    }
+
+    async function loadCities(provinceId) {
+      try {
+        const resp = await fetch(`${API_BASE}/api/public/cities?provinceId=${provinceId}`);
+        const result = await resp.json();
+        cities = (result.data || []).map(function(c) {
+          return { id: c.id, name: c.name, pinyin: c.pinyin, count: c.count };
+        });
+        renderCityList();
+      } catch (err) {
+        console.error('加载城市失败:', err);
+      }
+    }
+
+    async function loadHospitals(provinceId, cityId) {
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('hospitalList').innerHTML = '';
+
+      try {
+        var url = `${API_BASE}/api/public/hospitals?provinceId=${provinceId}`;
+        if (cityId) url += `&cityId=${cityId}`;
+
+        const resp = await fetch(url);
+        const result = await resp.json();
+        hospitals = (result.data || []).map(function(h) {
+          return {
+            id: h.id,
+            cityId: String(h.cityId),
+            cityName: h.city ? h.city.name : '',
+            name: h.name,
+            level: h.level,
+            address: h.address,
+            intro: h.intro,
+            logo: h.logo,
+            clinicServices: (h.clinicServices || []).map(function(cs) {
+              return {
+                id: cs.id,
+                clinicType: cs.clinicType,
+                intro: cs.intro,
+                schedule: formatSchedule(cs.schedules || []),
+                contacts: (cs.phones || []).map(function(p) {
+                  return {
+                    name: p.contactPerson || p.phoneName,
+                    phone: p.phoneNumber,
+                  };
+                }),
+              };
+            }),
+          };
+        });
+        renderHospitalList();
+      } catch (err) {
+        console.error('加载医院失败:', err);
+        document.getElementById('hospitalList').innerHTML =
+          '<div class="error-state">加载失败，请检查网络连接后重试</div>';
+      } finally {
+        document.getElementById('loadingState').style.display = 'none';
+      }
+    }
+
+    // ============================================================
+    // schedule 格式化: 将 ClinicSchedule[] 转为可读文字
+    // ============================================================
+    function formatSchedule(schedules) {
+      if (!schedules || schedules.length === 0) return '详见医院公告';
+
+      const days = ['一', '二', '三', '四', '五', '六', '日'];
+      const parts = [];
+
+      // 尝试合并连续相同的时间段
+      var i = 0;
+      while (i < schedules.length) {
+        const s = schedules[i];
+        const slots = [];
+        if (s.hasMorning) slots.push('上午');
+        if (s.hasAfternoon) slots.push('下午');
+        if (s.hasEvening) slots.push('晚上');
+        if (slots.length === 0) { i++; continue; }
+
+        const startDay = s.dayOfWeek;
+        var endDay = s.dayOfWeek;
+
+        // 查找连续相同模式的日期
+        while (i + 1 < schedules.length) {
+          const next = schedules[i + 1];
+          const nextSlots = [];
+          if (next.hasMorning) nextSlots.push('上午');
+          if (next.hasAfternoon) nextSlots.push('下午');
+          if (next.hasEvening) nextSlots.push('晚上');
+          if (nextSlots.join(',') === slots.join(',') && next.dayOfWeek === endDay + 1) {
+            endDay = next.dayOfWeek;
+            i++;
+          } else {
+            break;
+          }
+        }
+
+        const slotStr = slots.join('、');
+        if (startDay === endDay) {
+          parts.push('周' + days[startDay - 1] + ' ' + slotStr);
+        } else {
+          parts.push('周' + days[startDay - 1] + '至周' + days[endDay - 1] + ' ' + slotStr);
+        }
+        i++;
+      }
+
+      return parts.length > 0 ? parts.join('；') : '详见医院公告';
+    }
+
+    // ============================================================
+    // 渲染
+    // ============================================================
+
+    function renderProvinceSelector() {
+      var sel = document.getElementById('provinceSelect');
+      var html = '';
+      for (var i = 0; i < provinces.length; i++) {
+        var selected = provinces[i].id === currentProvinceId ? ' selected' : '';
+        html += '<option value="' + provinces[i].id + '"' + selected + '>' + provinces[i].name + '</option>';
+      }
+      sel.innerHTML = html;
+    }
+
+    function renderCityList() {
+      var ul = document.getElementById('cityList');
+      var totalCount = 0;
+      for (var i = 0; i < cities.length; i++) {
+        totalCount += cities[i].count;
+      }
+
+      var html = '<li class="city-item' + (currentCityId === '' ? ' active' : '') +
+        '" data-city-id="" onclick="onCityClick(\'\', this)">全部<span class="city-count">' + totalCount + '</span></li>';
+
+      for (var i = 0; i < cities.length; i++) {
+        var active = currentCityId === String(cities[i].id) ? ' active' : '';
+        html += '<li class="city-item' + active + '" data-city-id="' + cities[i].id +
+          '" onclick="onCityClick(\'' + cities[i].id + '\', this)">' +
+          cities[i].name + '<span class="city-count">' + (cities[i].count || 0) + '</span></li>';
+      }
+      ul.innerHTML = html;
+    }
+
+    function renderHospitalList() {
+      document.getElementById('statsBar').innerHTML =
+        '<span>共找到 <span class="count">' + hospitals.length + '</span> 家医院</span>';
+
+      if (hospitals.length === 0) {
+        document.getElementById('hospitalList').innerHTML =
+          '<div class="empty-state">暂无医院数据</div>';
+        return;
+      }
+
+      var html = '';
+      for (var i = 0; i < hospitals.length; i++) {
+        var h = hospitals[i];
+        html += '<div class="hospital-card">';
+        html += '  <div class="hospital-header">';
+        html += '    <span class="hospital-name">' + escapeHtml(h.name) + '</span>';
+        html += '    <span class="hospital-level">' + escapeHtml(h.level || '--') + '</span>';
+        if (h.cityName) {
+          html += '    <span class="hospital-city">' + escapeHtml(h.cityName) + '</span>';
+        }
+        html += '  </div>';
+
+        if (h.clinicServices && h.clinicServices.length > 0) {
+          html += '  <div class="service-list">';
+          for (var j = 0; j < h.clinicServices.length; j++) {
+            var cs = h.clinicServices[j];
+            html += '    <div class="service-item">';
+            html += '      <div class="service-type">' + escapeHtml(cs.clinicType) + '</div>';
+            html += '      <div class="service-schedule">门诊时间：' + escapeHtml(cs.schedule) + '</div>';
+            if (cs.contacts && cs.contacts.length > 0) {
+              html += '      <div class="service-contacts">';
+              for (var k = 0; k < cs.contacts.length; k++) {
+                var ct = cs.contacts[k];
+                html += '        <span class="contact-tag">';
+                if (ct.name) html += escapeHtml(ct.name) + ' ';
+                html += '<span class="phone">' + escapeHtml(ct.phone) + '</span>';
+                html += '        </span>';
+              }
+              html += '      </div>';
+            }
+            html += '    </div>';
+          }
+          html += '  </div>';
+        }
+
+        if (h.address) {
+          html += '  <div class="hospital-footer">';
+          html += '    <div class="address">地址：' + escapeHtml(h.address) + '</div>';
+          html += '  </div>';
+        }
+
+        html += '</div>';
+      }
+
+      document.getElementById('hospitalList').innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // ============================================================
+    // 事件处理
+    // ============================================================
+
+    function onProvinceChange() {
+      var sel = document.getElementById('provinceSelect');
+      currentProvinceId = parseInt(sel.value) || 1;
+      currentCityId = '';
+      loadCities(currentProvinceId);
+      loadHospitals(currentProvinceId, '');
+    }
+
+    function onCityClick(cityId, el) {
+      currentCityId = cityId;
+      // 更新激活状态
+      var items = document.querySelectorAll('.city-item');
+      for (var i = 0; i < items.length; i++) {
+        items[i].classList.remove('active');
+      }
+      el.classList.add('active');
+      loadHospitals(currentProvinceId, cityId);
+    }
+
+    // ============================================================
+    // 初始化
+    // ============================================================
+
+    (function init() {
+      loadProvinces();
+      loadCities(currentProvinceId);
+      loadHospitals(currentProvinceId, '');
+    })();
+  </script>
+</body>
+</html>
