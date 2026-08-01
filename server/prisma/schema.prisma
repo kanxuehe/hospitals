@@ -50,7 +50,6 @@ model Hospital {
   mapLng      Float?    @map("map_lng")
   mapLat      Float?    @map("map_lat")
   intro       String?   @db.Text
-  logo        String?   @db.VarChar(500)
   isPublished Boolean   @default(false) @map("is_published")
   sortOrder   Int       @default(0) @map("sort_order")
   createdBy   Int       @map("created_by")

@@ -1,7 +1,8 @@
 <template>
   <el-card>
-    <div style="margin-bottom: 12px">
-      <el-button type="success" @click="openDialog()">新增账号</el-button>
+    <!-- 操作栏 -->
+    <div class="toolbar">
+      <el-button type="primary" @click="openDialog()">新增账号</el-button>
     </div>
     <el-table :data="list" v-loading="loading" border>
       <el-table-column prop="username" label="用户名" width="120" />
@@ -25,13 +26,18 @@
       <el-table-column prop="lastLoginAt" label="最后登录" width="160">
         <template #default="{ row }">{{ row.lastLoginAt ? formatDate(row.lastLoginAt) : '从未' }}</template>
       </el-table-column>
-      <el-table-column label="操作" width="200" fixed="right">
+      <el-table-column label="操作" width="70" fixed="right">
         <template #default="{ row }">
-          <el-button size="small" link type="primary" @click="openDialog(row)">编辑</el-button>
-          <el-button size="small" link type="warning" @click="handleResetPassword(row.id)">重置密码</el-button>
-          <el-popconfirm title="确定删除？" @confirm="handleDelete(row.id)">
-            <template #reference><el-button size="small" link type="danger">删除</el-button></template>
-          </el-popconfirm>
+          <el-dropdown trigger="click" @command="(cmd: string) => handleAction(cmd, row)">
+            <el-button size="small" link>更多<el-icon style="margin-left: 2px"><ArrowDown /></el-icon></el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="edit">编辑</el-dropdown-item>
+                <el-dropdown-item command="resetPwd">重置密码</el-dropdown-item>
+                <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </template>
       </el-table-column>
     </el-table>
@@ -65,6 +71,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { ArrowDown } from '@element-plus/icons-vue';
 import { getUsers, createUser, updateUser, toggleUserEnabled, resetPassword, deleteUser } from '../../api/user';
 import { getProvinces } from '../../api/province';
 
@@ -95,9 +102,9 @@ function openDialog(row?: any) {
 }
 
 async function handleSave() {
+  const payload = { username: form.username, name: form.name, phone: form.phone, role: form.role, provinceIds: form.provinceIds };
   if (editing.value) {
-    const { password, ...data } = form;
-    await updateUser(editing.value.id, data);
+    await updateUser(editing.value.id, payload);
   } else {
     await createUser(form);
   }
@@ -121,6 +128,15 @@ async function handleDelete(id: number) {
   await deleteUser(id);
   ElMessage.success('删除成功');
   fetchData();
+}
+
+async function handleAction(cmd: string, row: any) {
+  if (cmd === 'edit') openDialog(row);
+  else if (cmd === 'resetPwd') handleResetPassword(row.id);
+  else if (cmd === 'delete') {
+    await ElMessageBox.confirm('确定删除？', '提示', { type: 'warning' });
+    handleDelete(row.id);
+  }
 }
 
 function formatDate(d: string) {

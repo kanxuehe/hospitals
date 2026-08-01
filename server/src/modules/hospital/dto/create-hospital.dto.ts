@@ -43,10 +43,6 @@ export class CreateHospitalDto {
   @IsString()
   intro?: string;
 
-  @IsOptional()
-  @IsString()
-  logo?: string;
-
   @IsBoolean()
   isPublished: boolean;
 

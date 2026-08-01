@@ -2,40 +2,33 @@
   <div>
     <!-- 搜索栏 -->
     <el-card style="margin-bottom: 16px">
-      <el-form :inline="true" :model="query" @keyup.enter="handleSearch">
+      <el-form class="search-form" :model="query" @keyup.enter="handleSearch">
         <el-form-item label="医生姓名">
           <el-input v-model="query.name" placeholder="搜索医生姓名" clearable />
         </el-form-item>
-        <el-form-item label="省份" v-if="authStore.isSuperAdmin()">
-          <el-select v-model="query.provinceId" placeholder="全部" clearable @change="onProvinceChange" style="width: 120px">
-            <el-option v-for="p in provinces" :key="p.id" :label="p.name" :value="p.id" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="城市">
-          <el-select v-model="query.cityId" placeholder="全部" clearable @change="onCityChange" style="width: 120px">
-            <el-option v-for="c in cities" :key="c.id" :label="c.name" :value="c.id" />
-          </el-select>
-        </el-form-item>
         <el-form-item label="医院">
-          <el-select v-model="query.hospitalId" placeholder="全部" clearable style="width: 160px">
+          <el-select v-model="query.hospitalId" placeholder="全部" clearable filterable>
             <el-option v-for="h in hospitals" :key="h.id" :label="h.name" :value="h.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="职称">
-          <el-select v-model="query.title" placeholder="全部" clearable style="width: 120px">
+          <el-select v-model="query.title" placeholder="全部" clearable>
             <el-option v-for="t in titles" :key="t.value" :label="t.label" :value="t.value" />
           </el-select>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch">搜索</el-button>
           <el-button @click="handleReset">重置</el-button>
-          <el-button type="success" @click="openDialog()">新增医生</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <!-- 表格 -->
     <el-card>
+      <!-- 操作栏 -->
+      <div class="toolbar">
+        <el-button type="primary" @click="openDialog()">新增医生</el-button>
+      </div>
       <el-table :data="tableData" v-loading="loading" style="width: 100%">
         <el-table-column prop="name" label="姓名" width="100" />
         <el-table-column prop="title" label="职称" width="100" />
@@ -53,12 +46,17 @@
         <el-table-column prop="updatedAt" label="更新时间" width="160">
           <template #default="{ row }">{{ formatDate(row.updatedAt) }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="120" fixed="right">
+        <el-table-column label="操作" width="70" fixed="right">
           <template #default="{ row }">
-            <el-button size="small" link type="primary" @click="openDialog(row)">编辑</el-button>
-            <el-popconfirm title="确定删除？" @confirm="handleDelete(row.id)">
-              <template #reference><el-button size="small" link type="danger">删除</el-button></template>
-            </el-popconfirm>
+            <el-dropdown trigger="click" @command="(cmd: string) => handleAction(cmd, row)">
+              <el-button size="small" link>更多<el-icon style="margin-left: 2px"><ArrowDown /></el-icon></el-button>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="edit">编辑</el-dropdown-item>
+                  <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
@@ -80,7 +78,7 @@
       <el-form :model="form" label-width="100px">
         <el-form-item label="所属医院">
           <el-select v-model="form.hospitalId" style="width: 100%" placeholder="请选择医院">
-            <el-option v-for="h in allHospitals" :key="h.id" :label="h.name" :value="h.id" />
+            <el-option v-for="h in hospitals" :key="h.id" :label="h.name" :value="h.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="姓名"><el-input v-model="form.name" /></el-form-item>
@@ -100,24 +98,17 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { ElMessage } from 'element-plus';
-import { useAuthStore } from '../../stores/auth';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { ArrowDown } from '@element-plus/icons-vue';
 import { getDoctors, createDoctor, updateDoctor, deleteDoctor } from '../../api/doctor';
-import { getProvinces } from '../../api/province';
-import { getCities } from '../../api/city';
 import { getDictItems } from '../../api/dict';
 import request from '../../api/request';
-
-const authStore = useAuthStore();
 
 const loading = ref(false);
 const tableData = ref<any[]>([]);
 const total = ref(0);
 
-const provinces = ref<any[]>([]);
-const cities = ref<any[]>([]);
 const hospitals = ref<any[]>([]);
-const allHospitals = ref<any[]>([]);
 const titles = ref<any[]>([]);
 
 const dialogVisible = ref(false);
@@ -136,8 +127,6 @@ const query = reactive({
   page: 1,
   pageSize: 20,
   name: '',
-  provinceId: undefined as number | undefined,
-  cityId: undefined as number | undefined,
   hospitalId: undefined as number | undefined,
   title: '',
 });
@@ -160,38 +149,9 @@ async function fetchData() {
   }
 }
 
-async function loadProvinces() {
-  provinces.value = await getProvinces() as unknown as any[];
-  if (!authStore.isSuperAdmin() && authStore.getProvinceIds().length > 0) {
-    query.provinceId = authStore.getProvinceIds()[0];
-    await onProvinceChange();
-  }
-}
-
-async function onProvinceChange() {
-  query.cityId = undefined;
-  query.hospitalId = undefined;
-  hospitals.value = [];
-  if (query.provinceId) {
-    cities.value = await getCities(query.provinceId) as unknown as any[];
-  } else {
-    cities.value = [];
-  }
-}
-
-async function onCityChange() {
-  query.hospitalId = undefined;
-  if (query.cityId) {
-    const data: any = await request.get('/admin/hospitals', { params: { pageSize: 1000, cityId: query.cityId, isPublished: undefined } });
-    hospitals.value = data.list || data;
-  } else {
-    hospitals.value = [];
-  }
-}
-
-async function loadAllHospitals() {
+async function loadHospitals() {
   const data: any = await request.get('/admin/hospitals', { params: { pageSize: 1000 } });
-  allHospitals.value = data.list || data;
+  hospitals.value = data.list || data;
 }
 
 async function loadTitles() {
@@ -205,10 +165,8 @@ function handleSearch() {
 
 function handleReset() {
   query.name = '';
-  query.cityId = undefined;
   query.hospitalId = undefined;
   query.title = '';
-  if (authStore.isSuperAdmin()) query.provinceId = undefined;
   handleSearch();
 }
 
@@ -263,13 +221,20 @@ async function handleDelete(id: number) {
   fetchData();
 }
 
+async function handleAction(cmd: string, row: any) {
+  if (cmd === 'edit') openDialog(row);
+  else if (cmd === 'delete') {
+    await ElMessageBox.confirm('确定删除？', '提示', { type: 'warning' });
+    handleDelete(row.id);
+  }
+}
+
 function formatDate(d: string) {
   return new Date(d).toLocaleString('zh-CN');
 }
 
 onMounted(async () => {
-  await loadProvinces();
-  await loadAllHospitals();
+  await loadHospitals();
   await loadTitles();
   fetchData();
 });

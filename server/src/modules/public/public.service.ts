@@ -56,7 +56,6 @@ export class PublicService {
         level: true,
         address: true,
         intro: true,
-        logo: true,
         cityId: true,
         city: { select: { id: true, name: true } },
         clinicServices: {
@@ -102,7 +101,6 @@ export class PublicService {
         level: true,
         address: true,
         intro: true,
-        logo: true,
         mapLng: true,
         mapLat: true,
         city: { select: { id: true, name: true } },

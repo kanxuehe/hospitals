@@ -1,10 +1,11 @@
 <template>
   <el-card>
-    <div style="margin-bottom: 12px; display: flex; gap: 12px; align-items: center">
+    <!-- 操作栏 -->
+    <div class="toolbar">
       <el-select v-model="selectedProvince" placeholder="选择省份" @change="fetchData" style="width: 150px">
         <el-option v-for="p in provinces" :key="p.id" :label="p.name" :value="p.id" />
       </el-select>
-      <el-button type="success" @click="openDialog()" :disabled="!selectedProvince">新增城市</el-button>
+      <el-button type="primary" @click="openDialog()" :disabled="!selectedProvince">新增城市</el-button>
     </div>
     <el-table :data="list" v-loading="loading" border>
       <el-table-column prop="code" label="编码" width="100" />
@@ -18,12 +19,17 @@
           <el-tag :type="row.isEnabled ? 'success' : 'info'">{{ row.isEnabled ? '启用' : '禁用' }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="120">
+      <el-table-column label="操作" width="70">
         <template #default="{ row }">
-          <el-button size="small" link type="primary" @click="openDialog(row)">编辑</el-button>
-          <el-popconfirm title="确定删除？" @confirm="handleDelete(row.id)">
-            <template #reference><el-button size="small" link type="danger">删除</el-button></template>
-          </el-popconfirm>
+          <el-dropdown trigger="click" @command="(cmd: string) => handleAction(cmd, row)">
+            <el-button size="small" link>更多<el-icon style="margin-left: 2px"><ArrowDown /></el-icon></el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="edit">编辑</el-dropdown-item>
+                <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </template>
       </el-table-column>
     </el-table>
@@ -45,7 +51,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { ArrowDown } from '@element-plus/icons-vue';
 import { useAuthStore } from '../../stores/auth';
 import request from '../../api/request';
 import { getProvinces } from '../../api/province';
@@ -80,10 +87,11 @@ function openDialog(row?: any) {
 }
 
 async function handleSave() {
+  const payload = { code: form.code, name: form.name, sortOrder: form.sortOrder, isEnabled: form.isEnabled, provinceId: form.provinceId };
   if (editing.value) {
-    await request.put(`/admin/cities/${editing.value.id}`, form);
+    await request.put(`/admin/cities/${editing.value.id}`, payload);
   } else {
-    await request.post('/admin/cities', form);
+    await request.post('/admin/cities', payload);
   }
   ElMessage.success('保存成功');
   dialogVisible.value = false;
@@ -96,10 +104,22 @@ async function handleDelete(id: number) {
   fetchData();
 }
 
+async function handleAction(cmd: string, row: any) {
+  if (cmd === 'edit') openDialog(row);
+  else if (cmd === 'delete') {
+    await ElMessageBox.confirm('确定删除？', '提示', { type: 'warning' });
+    handleDelete(row.id);
+  }
+}
+
 onMounted(async () => {
   provinces.value = await getProvinces() as unknown as any[];
   if (!authStore.isSuperAdmin() && authStore.getProvinceIds().length > 0) {
     selectedProvince.value = authStore.getProvinceIds()[0];
+  } else if (provinces.value.length > 0) {
+    selectedProvince.value = provinces.value[0].id;
+  }
+  if (selectedProvince.value) {
     fetchData();
   }
 });

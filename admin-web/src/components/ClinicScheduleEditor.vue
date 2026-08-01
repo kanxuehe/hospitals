@@ -23,7 +23,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-button type="primary" size="small" style="margin-top: 8px" @click="handleSave" :loading="saving">
+    <el-button type="primary" size="small" plain style="margin-top: 8px" @click="handleSave" :loading="saving">
       保存门诊时间
     </el-button>
   </div>

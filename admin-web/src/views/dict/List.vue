@@ -7,8 +7,9 @@
         :label="dt.name"
         :name="dt.code"
       >
-        <div style="margin-bottom: 12px">
-          <el-button type="success" size="small" @click="openItemDialog(dt.id)">新增选项</el-button>
+        <!-- 操作栏 -->
+        <div class="toolbar">
+          <el-button type="primary" @click="openItemDialog(dt.id)">新增选项</el-button>
         </div>
         <el-table :data="dt.items" border size="small">
           <el-table-column prop="label" label="显示文本" />
@@ -19,12 +20,17 @@
               <el-tag :type="row.isEnabled ? 'success' : 'info'" size="small">{{ row.isEnabled ? '启用' : '禁用' }}</el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="120">
+          <el-table-column label="操作" width="70">
             <template #default="{ row }">
-              <el-button size="small" link type="primary" @click="openItemDialog(dt.id, row)">编辑</el-button>
-              <el-popconfirm title="确定删除？" @confirm="handleDeleteItem(row.id)">
-                <template #reference><el-button size="small" link type="danger">删除</el-button></template>
-              </el-popconfirm>
+              <el-dropdown trigger="click" @command="(cmd: string) => handleAction(cmd, dt.id, row)">
+                <el-button size="small" link>更多<el-icon style="margin-left: 2px"><ArrowDown /></el-icon></el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item command="edit">编辑</el-dropdown-item>
+                    <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
             </template>
           </el-table-column>
         </el-table>
@@ -48,7 +54,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { ArrowDown } from '@element-plus/icons-vue';
 import request from '../../api/request';
 
 const dictTypes = ref<any[]>([]);
@@ -75,10 +82,11 @@ function openItemDialog(dictTypeId: number, row?: any) {
 }
 
 async function saveItem() {
+  const payload = { label: itemForm.label, value: itemForm.value, sortOrder: itemForm.sortOrder, isEnabled: itemForm.isEnabled, dictTypeId: itemForm.dictTypeId };
   if (editingItem.value) {
-    await request.put(`/admin/dict/items/${editingItem.value.id}`, itemForm);
+    await request.put(`/admin/dict/items/${editingItem.value.id}`, payload);
   } else {
-    await request.post('/admin/dict/items', itemForm);
+    await request.post('/admin/dict/items', payload);
   }
   ElMessage.success('保存成功');
   itemDialogVisible.value = false;
@@ -89,6 +97,14 @@ async function handleDeleteItem(id: number) {
   await request.delete(`/admin/dict/items/${id}`);
   ElMessage.success('删除成功');
   fetchData();
+}
+
+async function handleAction(cmd: string, dictTypeId: number, row: any) {
+  if (cmd === 'edit') openItemDialog(dictTypeId, row);
+  else if (cmd === 'delete') {
+    await ElMessageBox.confirm('确定删除？', '提示', { type: 'warning' });
+    handleDeleteItem(row.id);
+  }
 }
 
 onMounted(fetchData);

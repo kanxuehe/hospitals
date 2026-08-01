@@ -1,7 +1,7 @@
 <template>
   <el-container class="layout-container">
-    <!-- 侧边栏 -->
-    <el-aside :width="isCollapse ? '64px' : '220px'" class="sidebar">
+    <!-- 桌面端侧边栏 -->
+    <el-aside v-if="!isMobile" :width="isCollapse ? '64px' : '220px'" class="sidebar">
       <div class="logo">
         <span v-if="!isCollapse">造口伤口门诊后台</span>
         <span v-else>🏥</span>
@@ -44,10 +44,16 @@
       <!-- 顶栏 -->
       <el-header class="header">
         <div class="header-left">
-          <el-icon class="collapse-btn" @click="isCollapse = !isCollapse">
+          <!-- 桌面端折叠按钮 -->
+          <el-icon v-if="!isMobile" class="collapse-btn" @click="isCollapse = !isCollapse">
             <Fold v-if="!isCollapse" />
             <Expand v-else />
           </el-icon>
+          <!-- 移动端汉堡菜单按钮 -->
+          <el-icon v-else class="collapse-btn" @click="drawerVisible = true">
+            <Expand />
+          </el-icon>
+          <span v-if="isMobile" class="mobile-title">造口伤口门诊后台</span>
         </div>
         <div class="header-right">
           <el-dropdown @command="handleCommand">
@@ -70,6 +76,53 @@
         <router-view />
       </el-main>
     </el-container>
+
+    <!-- 移动端抽屉菜单 -->
+    <el-drawer
+      v-if="isMobile"
+      v-model="drawerVisible"
+      direction="ltr"
+      size="220px"
+      :with-header="false"
+    >
+      <div class="drawer-sidebar">
+        <div class="logo">
+          <span>造口伤口门诊后台</span>
+        </div>
+        <el-menu
+          :default-active="activeMenu"
+          router
+          background-color="#304156"
+          text-color="#bfcbd9"
+          active-text-color="#409EFF"
+          @select="drawerVisible = false"
+        >
+          <el-sub-menu index="hospital">
+            <template #title>
+              <el-icon><OfficeBuilding /></el-icon>
+              <span>医院管理</span>
+            </template>
+            <el-menu-item index="/hospitals">医院列表</el-menu-item>
+            <el-menu-item index="/doctors">医生管理</el-menu-item>
+          </el-sub-menu>
+
+          <el-sub-menu index="base">
+            <template #title>
+              <el-icon><Folder /></el-icon>
+              <span>基础数据</span>
+            </template>
+            <el-menu-item v-if="authStore.isSuperAdmin()" index="/provinces">省份管理</el-menu-item>
+            <el-menu-item index="/cities">城市管理</el-menu-item>
+            <el-menu-item index="/dict">数据字典</el-menu-item>
+          </el-sub-menu>
+
+          <el-menu-item v-if="authStore.isSuperAdmin()" index="/users">
+            <el-icon><User /></el-icon>
+            <span>账号管理</span>
+          </el-menu-item>
+        </el-menu>
+      </div>
+    </el-drawer>
 
     <!-- 修改密码弹窗 -->
     <el-dialog v-model="passwordDialogVisible" title="修改密码" width="400px">
@@ -94,13 +147,16 @@ import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useAuthStore } from '../stores/auth';
+import { useIsMobile } from '../composables/useIsMobile';
 import { changePassword } from '../api/auth';
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
+const { isMobile } = useIsMobile();
 
-const isCollapse = ref(window.innerWidth < 768);
+const isCollapse = ref(false);
+const drawerVisible = ref(false);
 const activeMenu = computed(() => route.path);
 
 const passwordDialogVisible = ref(false);
@@ -140,6 +196,10 @@ async function submitChangePassword() {
   transition: width 0.3s;
   overflow: hidden;
 }
+.drawer-sidebar {
+  height: 100%;
+  background-color: #304156;
+}
 .logo {
   height: 60px;
   display: flex;
@@ -157,9 +217,18 @@ async function submitChangePassword() {
   border-bottom: 1px solid #e6e6e6;
   background: #fff;
 }
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 .collapse-btn {
   cursor: pointer;
   font-size: 20px;
+}
+.mobile-title {
+  font-size: 16px;
+  font-weight: bold;
 }
 .user-info {
   cursor: pointer;
@@ -169,10 +238,13 @@ async function submitChangePassword() {
 }
 .main-content {
   background: #f0f2f5;
-  padding: 20px;
+  padding: 16px;
   overflow-y: auto;
 }
 :deep(.el-menu) {
   border-right: none;
+}
+:deep(.el-drawer__body) {
+  padding: 0;
 }
 </style>
