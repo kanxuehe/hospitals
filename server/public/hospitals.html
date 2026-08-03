@@ -904,6 +904,14 @@
           window.history.replaceState({}, '', url.toString());
         }
 
+        // ===== Helper: check if province switch is allowed =====
+        var allowSwitchProvince = false;
+        function applyShowProvince() {
+          var selectorWrap = document.querySelector('.province-selector');
+          if (!selectorWrap) return;
+          selectorWrap.style.display = allowSwitchProvince ? '' : 'none';
+        }
+
         // ===== Province change =====
         window.onProvinceChange = function () {
           currentProvinceCode = provinceSelect.value;
@@ -963,12 +971,19 @@
 
         // ===== Init =====
         (async function init() {
-          // 从 URL 读取省份参数
+          // 从 URL 读取参数
           var urlParams = new URLSearchParams(window.location.search);
           var urlProvinceCode = urlParams.get('provinceCode');
           if (urlProvinceCode) {
             currentProvinceCode = urlProvinceCode;
           }
+
+          // 是否显示省份下拉框（控制能否切换省份），默认不显示
+          var showProvince = urlParams.get('showProvince');
+          if (showProvince === 'true' || showProvince === '1') {
+            allowSwitchProvince = true;
+          }
+          applyShowProvince();
 
           await loadProvinces();
 
