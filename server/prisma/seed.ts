@@ -36,24 +36,31 @@ async function main() {
   // 3. 字典项
   const dictItems = [
     // 医院等级
-    { dictTypeCode: 'hospital_level', label: '三甲', value: '三甲', sortOrder: 1 },
-    { dictTypeCode: 'hospital_level', label: '三乙', value: '三乙', sortOrder: 2 },
-    { dictTypeCode: 'hospital_level', label: '二甲', value: '二甲', sortOrder: 3 },
-    { dictTypeCode: 'hospital_level', label: '二乙', value: '二乙', sortOrder: 4 },
-    { dictTypeCode: 'hospital_level', label: '一甲', value: '一甲', sortOrder: 5 },
-    { dictTypeCode: 'hospital_level', label: '其他', value: '其他', sortOrder: 6 },
+    { dictTypeCode: 'hospital_level', label: '三甲', value: 'level_3a', sortOrder: 1 },
+    { dictTypeCode: 'hospital_level', label: '三乙', value: 'level_3b', sortOrder: 2 },
+    { dictTypeCode: 'hospital_level', label: '二甲', value: 'level_2a', sortOrder: 3 },
+    { dictTypeCode: 'hospital_level', label: '二乙', value: 'level_2b', sortOrder: 4 },
+    { dictTypeCode: 'hospital_level', label: '一甲', value: 'level_1a', sortOrder: 5 },
+    { dictTypeCode: 'hospital_level', label: '其他', value: 'other', sortOrder: 6 },
     // 门诊类型
-    { dictTypeCode: 'clinic_type', label: '造口门诊', value: '造口门诊', sortOrder: 1 },
-    { dictTypeCode: 'clinic_type', label: '伤口门诊', value: '伤口门诊', sortOrder: 2 },
-    { dictTypeCode: 'clinic_type', label: '护理门诊', value: '护理门诊', sortOrder: 3 },
-    { dictTypeCode: 'clinic_type', label: '造口伤口门诊', value: '造口伤口门诊', sortOrder: 4 },
-    { dictTypeCode: 'clinic_type', label: '其他', value: '其他', sortOrder: 5 },
+    { dictTypeCode: 'clinic_type', label: '造口门诊', value: 'stoma', sortOrder: 1 },
+    { dictTypeCode: 'clinic_type', label: '伤口门诊', value: 'wound', sortOrder: 2 },
+    { dictTypeCode: 'clinic_type', label: '护理门诊', value: 'nursing', sortOrder: 3 },
+    { dictTypeCode: 'clinic_type', label: '造口伤口门诊', value: 'stoma_wound', sortOrder: 4 },
+    { dictTypeCode: 'clinic_type', label: '造口伤口门诊（普外科）', value: 'stoma_wound_general', sortOrder: 5 },
+    { dictTypeCode: 'clinic_type', label: '胃肠外科造口伤口门诊', value: 'stoma_wound_gi', sortOrder: 6 },
+    { dictTypeCode: 'clinic_type', label: '造口伤口门诊（泌尿外科）', value: 'stoma_wound_urology', sortOrder: 7 },
+    { dictTypeCode: 'clinic_type', label: '造口门诊（泌尿造口）', value: 'stoma_urostomy', sortOrder: 8 },
+    { dictTypeCode: 'clinic_type', label: '造口门诊（肠造口）', value: 'stoma_colostomy', sortOrder: 9 },
+    { dictTypeCode: 'clinic_type', label: '伤口造口中心', value: 'wound_stoma_center', sortOrder: 10 },
+    { dictTypeCode: 'clinic_type', label: '其他', value: 'other', sortOrder: 11 },
+
     // 电话类型
-    { dictTypeCode: 'phone_type', label: '咨询电话', value: '咨询电话', sortOrder: 1 },
-    { dictTypeCode: 'phone_type', label: '预约电话', value: '预约电话', sortOrder: 2 },
-    { dictTypeCode: 'phone_type', label: '护士站', value: '护士站', sortOrder: 3 },
-    { dictTypeCode: 'phone_type', label: '造口门诊', value: '造口门诊', sortOrder: 4 },
-    { dictTypeCode: 'phone_type', label: '伤口门诊', value: '伤口门诊', sortOrder: 5 },
+    { dictTypeCode: 'phone_type', label: '咨询电话', value: 'consultation', sortOrder: 1 },
+    { dictTypeCode: 'phone_type', label: '预约电话', value: 'appointment', sortOrder: 2 },
+    { dictTypeCode: 'phone_type', label: '护士站', value: 'nurse_station', sortOrder: 3 },
+    { dictTypeCode: 'phone_type', label: '造口门诊', value: 'stoma_clinic', sortOrder: 4 },
+    { dictTypeCode: 'phone_type', label: '伤口门诊', value: 'wound_clinic', sortOrder: 5 },
   ];
 
   for (const item of dictItems) {
