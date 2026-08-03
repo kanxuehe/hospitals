@@ -8,7 +8,7 @@ export interface UserInfo {
   username: string;
   name: string;
   role: string;
-  provinces: { id: number; name: string }[];
+  provinces: { id: number; code: string; name: string }[];
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -44,5 +44,9 @@ export const useAuthStore = defineStore('auth', () => {
     return user.value?.provinces?.map((p) => p.id) || [];
   }
 
-  return { user, isLoggedIn, login, fetchProfile, logout, isSuperAdmin, getProvinceIds };
+  function getProvinceCodes(): string[] {
+    return user.value?.provinces?.map((p) => p.code) || [];
+  }
+
+  return { user, isLoggedIn, login, fetchProfile, logout, isSuperAdmin, getProvinceIds, getProvinceCodes };
 });

@@ -13,16 +13,16 @@ export class PublicController {
   }
 
   @Get('cities')
-  getCities(@Query('provinceId', ParseIntPipe) provinceId: number) {
-    return this.publicService.getCities(provinceId);
+  getCities(@Query('provinceCode') provinceCode: string) {
+    return this.publicService.getCities(provinceCode);
   }
 
   @Get('hospitals')
   getHospitals(
-    @Query('provinceId', ParseIntPipe) provinceId: number,
-    @Query('cityId') cityId?: string,
+    @Query('provinceCode') provinceCode: string,
+    @Query('cityCode') cityCode?: string,
   ) {
-    return this.publicService.getHospitals(provinceId, cityId ? parseInt(cityId) : undefined);
+    return this.publicService.getHospitals(provinceCode, cityCode);
   }
 
   @Get('hospitals/:id')

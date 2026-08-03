@@ -22,8 +22,8 @@ export class CityController {
   constructor(private cityService: CityService) {}
 
   @Get()
-  findAll(@Query('provinceId') provinceId?: string) {
-    return this.cityService.findAll(provinceId ? parseInt(provinceId) : undefined);
+  findAll(@Query('provinceCode') provinceCode?: string) {
+    return this.cityService.findAll(provinceCode);
   }
 
   @Post()

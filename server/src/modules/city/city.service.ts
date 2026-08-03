@@ -7,9 +7,16 @@ import { UpdateCityDto } from './dto/update-city.dto';
 export class CityService {
   constructor(private prisma: PrismaService) {}
 
-  findAll(provinceId?: number) {
+  async findAll(provinceCode?: string) {
     const where: any = {};
-    if (provinceId) where.provinceId = provinceId;
+    if (provinceCode) {
+      const province = await this.prisma.province.findUnique({
+        where: { code: provinceCode },
+      });
+      if (province) {
+        where.provinceId = province.id;
+      }
+    }
 
     return this.prisma.city.findMany({
       where,

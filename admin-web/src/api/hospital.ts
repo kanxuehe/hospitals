@@ -4,8 +4,8 @@ export interface HospitalQuery {
   page?: number;
   pageSize?: number;
   name?: string;
-  provinceId?: number;
-  cityId?: number;
+  provinceCode?: string;
+  cityCode?: string;
   level?: string;
   isPublished?: boolean;
 }

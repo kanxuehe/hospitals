@@ -7,13 +7,13 @@
           <el-input v-model="query.name" placeholder="搜索医院名称" clearable />
         </el-form-item>
         <el-form-item label="省份" v-if="authStore.isSuperAdmin()">
-          <el-select v-model="query.provinceId" placeholder="全部" clearable @change="onProvinceChange">
-            <el-option v-for="p in provinces" :key="p.id" :label="p.name" :value="p.id" />
+          <el-select v-model="query.provinceCode" placeholder="全部" clearable @change="onProvinceChange">
+            <el-option v-for="p in provinces" :key="p.code" :label="p.name" :value="p.code" />
           </el-select>
         </el-form-item>
         <el-form-item label="城市">
-          <el-select v-model="query.cityId" placeholder="全部" clearable filterable>
-            <el-option v-for="c in cities" :key="c.id" :label="c.name" :value="c.id" />
+          <el-select v-model="query.cityCode" placeholder="全部" clearable filterable>
+            <el-option v-for="c in cities" :key="c.code" :label="c.name" :value="c.code" />
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
@@ -122,8 +122,8 @@ const query = reactive({
   page: 1,
   pageSize: 20,
   name: '',
-  provinceId: undefined as number | undefined,
-  cityId: undefined as number | undefined,
+  provinceCode: undefined as string | undefined,
+  cityCode: undefined as string | undefined,
   isPublished: undefined as boolean | undefined,
 });
 
@@ -141,16 +141,16 @@ async function fetchData() {
 async function loadProvinces() {
   provinces.value = await getProvinces() as unknown as any[];
   // 省管理员默认选自己的省份
-  if (!authStore.isSuperAdmin() && authStore.getProvinceIds().length > 0) {
-    query.provinceId = authStore.getProvinceIds()[0];
+  if (!authStore.isSuperAdmin() && authStore.getProvinceCodes().length > 0) {
+    query.provinceCode = authStore.getProvinceCodes()[0];
     await onProvinceChange();
   }
 }
 
 async function onProvinceChange() {
-  query.cityId = undefined;
-  if (query.provinceId) {
-    cities.value = await getCities(query.provinceId) as unknown as any[];
+  query.cityCode = undefined;
+  if (query.provinceCode) {
+    cities.value = await getCities(query.provinceCode) as unknown as any[];
   } else {
     cities.value = [];
   }
@@ -163,9 +163,9 @@ function handleSearch() {
 
 function handleReset() {
   query.name = '';
-  query.cityId = undefined;
+  query.cityCode = undefined;
   query.isPublished = undefined;
-  if (authStore.isSuperAdmin()) query.provinceId = undefined;
+  if (authStore.isSuperAdmin()) query.provinceCode = undefined;
   handleSearch();
 }
 

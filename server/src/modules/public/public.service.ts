@@ -13,9 +13,14 @@ export class PublicService {
     });
   }
 
-  async getCities(provinceId: number) {
+  async getCities(provinceCode: string) {
+    const province = await this.prisma.province.findUnique({
+      where: { code: provinceCode },
+    });
+    if (!province) return [];
+
     const cities = await this.prisma.city.findMany({
-      where: { provinceId, isEnabled: true },
+      where: { provinceId: province.id, isEnabled: true },
       orderBy: { sortOrder: 'asc' },
       select: {
         id: true,
@@ -39,13 +44,24 @@ export class PublicService {
     }));
   }
 
-  async getHospitals(provinceId: number, cityId?: number) {
+  async getHospitals(provinceCode: string, cityCode?: string) {
+    const province = await this.prisma.province.findUnique({
+      where: { code: provinceCode },
+    });
+    if (!province) return [];
+
     const where: any = {
       isPublished: true,
       deletedAt: null,
-      provinceId,
+      provinceId: province.id,
     };
-    if (cityId) where.cityId = cityId;
+
+    if (cityCode) {
+      const city = await this.prisma.city.findUnique({
+        where: { code: cityCode },
+      });
+      if (city) where.cityId = city.id;
+    }
 
     const hospitals = await this.prisma.hospital.findMany({
       where,

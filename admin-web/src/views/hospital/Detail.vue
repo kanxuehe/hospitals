@@ -317,14 +317,20 @@ async function loadData() {
       });
       hospital.value = { clinicServices: [], doctors: [] };
       if (defaultProvinceId) {
-        cities.value = (await getCities(defaultProvinceId)) as unknown as any[];
+        const prov = provinces.value.find((p) => p.id === defaultProvinceId);
+        if (prov) {
+          cities.value = (await getCities(prov.code)) as unknown as any[];
+        }
       }
     } else {
       // 编辑模式：加载医院详情
       hospital.value = await getHospitalDetail(id);
       Object.assign(form, hospital.value);
       if (form.provinceId) {
-        cities.value = (await getCities(form.provinceId)) as unknown as any[];
+        const prov = provinces.value.find((p) => p.id === form.provinceId);
+        if (prov) {
+          cities.value = (await getCities(prov.code)) as unknown as any[];
+        }
       }
       if (hospital.value.clinicServices?.length > 0) {
         expandedClinics.value = [hospital.value.clinicServices[0].id];
@@ -338,7 +344,10 @@ async function loadData() {
 async function onProvinceChange() {
   form.cityId = undefined;
   if (form.provinceId) {
-    cities.value = (await getCities(form.provinceId)) as unknown as any[];
+    const prov = provinces.value.find((p) => p.id === form.provinceId);
+    if (prov) {
+      cities.value = (await getCities(prov.code)) as unknown as any[];
+    }
   } else {
     cities.value = [];
   }

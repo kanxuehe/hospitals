@@ -1,606 +1,989 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>辽宁省造口伤口护理门诊查询</title>
-  <style>
-    :root {
-      --primary: #2563eb;
-      --primary-light: #eff6ff;
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #1e293b;
-      --text-secondary: #64748b;
-      --border: #e2e8f0;
-      --radius: 12px;
-      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>造口伤口门诊名录</title>
+    <style>
+      /* ===== 蓝白主题 ===== */
+      * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+        background: #f0f7ff;
+        color: #1e293b;
+        min-height: 100vh;
+        line-height: 1.6;
+      }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-    }
+      /* ===== Header ===== */
+      .page-header {
+        background: #ffffff;
+        border-bottom: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      }
+      .page-header .brand {
+        color: #1e40af;
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+      .province-selector select {
+        padding: 0.35rem 0.75rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        background: #f8fafc;
+        color: #475569;
+        font-size: 0.85rem;
+        cursor: pointer;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      .province-selector select:focus {
+        border-color: #3b82f6;
+        background: #fff;
+      }
 
-    /* Header */
-    .header {
-      background: linear-gradient(135deg, #1e40af, #2563eb);
-      color: #fff;
-      padding: 20px 0;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
+      /* ===== Hero ===== */
+      .hero {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 60%, #60a5fa 100%);
+        color: #fff;
+        padding: 3rem 1.5rem;
+        text-align: center;
+      }
+      .hero h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem;
+        letter-spacing: 0.02em;
+      }
+      .hero p {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        margin: 0;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.6;
+      }
 
-    .header-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
+      /* ===== Content container ===== */
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
 
-    .header h1 {
-      font-size: 1.35rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
+      /* ===== Section title ===== */
+      .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1e3a5f;
+        margin: 2rem 0 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .section-title .badge {
+        font-size: 0.8rem;
+        font-weight: 500;
+        background: #dbeafe;
+        color: #1e40af;
+        padding: 0.15rem 0.65rem;
+        border-radius: 999px;
+      }
 
-    .header h1 span { opacity: 0.85; font-weight: 400; font-size: 0.9rem; margin-left: 8px; }
+      /* ===== City grid ===== */
+      .city-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 0.875rem;
+        margin-bottom: 2rem;
+      }
+      .city-card {
+        background: #fff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1rem 0.75rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+      }
+      .city-card:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        transform: translateY(-2px);
+      }
+      .city-card:active {
+        transform: scale(0.97);
+      }
+      .city-card .city-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+      }
+      .city-card .city-count {
+        font-size: 0.78rem;
+        color: #64748b;
+        margin-top: 0.3rem;
+      }
+      .city-card .city-count.empty {
+        color: #f59e0b;
+      }
+      .city-card .city-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.35rem;
+        display: block;
+      }
 
-    .province-selector select {
-      padding: 8px 16px;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.3);
-      background: rgba(255,255,255,0.15);
-      color: #fff;
-      font-size: 0.95rem;
-      cursor: pointer;
-      backdrop-filter: blur(4px);
-      min-width: 140px;
-    }
-    .province-selector select option { color: #1e293b; }
+      /* ===== Hospital section ===== */
+      .hospital-section {
+        display: none;
+        margin-bottom: 2rem;
+      }
+      .hospital-section.visible {
+        display: block;
+        animation: fadeSlideIn 0.3s ease;
+      }
 
-    /* Layout */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 24px 20px;
-      display: flex;
-      gap: 24px;
-      align-items: flex-start;
-    }
+      @keyframes fadeSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
-    /* Sidebar - City List */
-    .sidebar {
-      width: 200px;
-      flex-shrink: 0;
-      position: sticky;
-      top: 100px;
-    }
+      .hospital-header-bar {
+        background: #fff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+      .hospital-header-bar .back-btn {
+        background: none;
+        border: 1.5px solid #e2e8f0;
+        color: #475569;
+        padding: 0.45rem 1rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+      .hospital-header-bar .back-btn:hover {
+        border-color: #3b82f6;
+        color: #2563eb;
+        background: #eff6ff;
+      }
+      .hospital-header-bar h2 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #1e3a5f;
+        margin: 0;
+      }
+      .hospital-header-bar .count-tag {
+        font-size: 0.8rem;
+        background: #dbeafe;
+        color: #1e40af;
+        padding: 0.2rem 0.7rem;
+        border-radius: 999px;
+        font-weight: 500;
+      }
 
-    .sidebar-card {
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .sidebar-title {
-      padding: 14px 16px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      border-bottom: 1px solid var(--border);
-      background: var(--primary-light);
-      color: var(--primary);
-    }
-
-    .city-list { list-style: none; }
-
-    .city-item {
-      padding: 10px 16px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      transition: all 0.15s;
-      border-left: 3px solid transparent;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .city-item:hover { background: var(--primary-light); color: var(--primary); }
-    .city-item.active {
-      background: var(--primary-light);
-      color: var(--primary);
-      border-left-color: var(--primary);
-      font-weight: 600;
-    }
-
-    .city-count {
-      font-size: 0.75rem;
-      background: var(--bg);
-      color: var(--text-secondary);
-      padding: 1px 8px;
-      border-radius: 10px;
-    }
-    .city-item.active .city-count {
-      background: var(--primary);
-      color: #fff;
-    }
-
-    /* Main Content */
-    .main { flex: 1; min-width: 0; }
-
-    .stats-bar {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 20px;
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      align-items: center;
-    }
-    .stats-bar .count { font-weight: 700; color: var(--primary); font-size: 1.3rem; }
-
-    .loading-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-secondary);
-    }
-    .loading-state .spinner {
-      width: 36px;
-      height: 36px;
-      border: 3px solid var(--border);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 16px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-secondary);
-      font-size: 0.95rem;
-    }
-
-    /* Hospital Card */
-    .hospital-card {
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      margin-bottom: 16px;
-      overflow: hidden;
-      transition: box-shadow 0.2s;
-    }
-    .hospital-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-
-    .hospital-header {
-      padding: 18px 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .hospital-name {
-      font-size: 1.1rem;
-      font-weight: 600;
-      flex: 1;
-    }
-
-    .hospital-level {
-      display: inline-block;
-      padding: 2px 10px;
-      background: #fef3c7;
-      color: #92400e;
-      border-radius: 4px;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-
-    .hospital-city {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-
-    .service-list { padding: 0 20px; }
-
-    .service-item {
-      padding: 16px 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .service-item:last-child { border-bottom: none; }
-
-    .service-type {
-      font-weight: 600;
-      color: var(--primary);
-      margin-bottom: 6px;
-      font-size: 0.95rem;
-    }
-
-    .service-schedule {
-      font-size: 0.85rem;
-      color: #475569;
-      margin-bottom: 4px;
-    }
-
-    .service-contacts {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    .contact-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 0.82rem;
-      color: var(--text-secondary);
-      background: var(--bg);
-      padding: 3px 10px;
-      border-radius: 6px;
-    }
-    .contact-tag .phone {
-      color: var(--primary);
-      font-weight: 500;
-    }
-
-    .hospital-footer {
-      padding: 0 20px 20px;
-      font-size: 0.82rem;
-      color: var(--text-secondary);
-    }
-    .hospital-footer .address {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    /* Error state */
-    .error-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: #dc2626;
-      background: #fef2f2;
-      border-radius: var(--radius);
-      margin-bottom: 16px;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .container { flex-direction: column; padding: 16px 12px; }
-      .sidebar {
+      /* ===== Search ===== */
+      .search-box {
+        position: relative;
+        flex: 1;
+        min-width: 180px;
+        max-width: 340px;
+      }
+      .search-box input {
         width: 100%;
-        position: static;
+        padding: 0.5rem 0.85rem 0.5rem 2.2rem;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        outline: none;
+        transition: border-color 0.15s;
+        background: #f8fafc;
+        color: #1e293b;
+        box-sizing: border-box;
       }
-      .sidebar-card { display: flex; overflow-x: auto; }
-      .sidebar-title { display: none; }
-      .city-list { display: flex; }
-      .city-item {
-        white-space: nowrap;
+      .search-box input:focus {
+        border-color: #3b82f6;
+        background: #fff;
+      }
+      .search-box .search-icon {
+        position: absolute;
+        left: 0.7rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 0.9rem;
+        pointer-events: none;
+      }
+
+      /* ===== Hospital cards ===== */
+      .hospital-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .hospital-card {
+        background: #fff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .hospital-card:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 4px 16px rgba(59, 130, 246, 0.12);
+        transform: translateY(-1px);
+      }
+      .hospital-card:active {
+        transform: scale(0.99);
+      }
+      .hospital-card .h-name {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.4rem;
+      }
+      .hospital-card .h-meta {
+        font-size: 0.85rem;
+        color: #64748b;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1.2rem;
+      }
+      .hospital-card .h-meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      /* ===== Empty state ===== */
+      .empty-state {
+        text-align: center;
+        padding: 3rem 1.5rem;
+        color: #94a3b8;
+      }
+      .empty-state .empty-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+        display: block;
+      }
+      .empty-state p {
+        margin: 0;
+        font-size: 0.95rem;
+      }
+
+      /* ===== Loading state ===== */
+      .loading-state {
+        text-align: center;
+        padding: 3rem 1.5rem;
+        color: #94a3b8;
+      }
+      .loading-state .spinner {
+        width: 36px;
+        height: 36px;
+        border: 3px solid #e2e8f0;
+        border-top-color: #3b82f6;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 1rem;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      /* ===== Modal ===== */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 100;
+        justify-content: center;
+        align-items: center;
+        padding: 1.5rem;
+      }
+      .modal-overlay.open {
+        display: flex;
+        animation: fadeIn 0.2s ease;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      .modal-content {
+        background: #fff;
+        border-radius: 16px;
+        max-width: 540px;
+        width: 100%;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        animation: modalSlideUp 0.25s ease;
+      }
+      @keyframes modalSlideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+
+      .modal-head {
+        padding: 1.5rem 1.5rem 0.75rem;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      .modal-head h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+        line-height: 1.4;
+      }
+      .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.4rem;
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 0.25rem;
+        line-height: 1;
+        border-radius: 6px;
+        transition: all 0.15s;
         flex-shrink: 0;
-        border-left: none;
-        border-bottom: 3px solid transparent;
       }
-      .city-item.active { border-left: none; border-bottom-color: var(--primary); }
-      .header h1 { font-size: 1.1rem; }
-    }
-  </style>
-</head>
-<body>
-  <!-- Header -->
-  <div class="header">
-    <div class="header-inner">
-      <h1>造口伤口护理门诊查询<span>| 辽宁省</span></h1>
-      <div class="province-selector">
-        <select id="provinceSelect" onchange="onProvinceChange()">
-          <option value="">加载中...</option>
-        </select>
+      .modal-close:hover {
+        color: #475569;
+        background: #f1f5f9;
+      }
+
+      .modal-body {
+        padding: 1.25rem 1.5rem 1.5rem;
+      }
+
+      .service-item {
+        padding: 1rem 0;
+        border-bottom: 1px solid #f1f5f9;
+      }
+      .service-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+      .service-item:first-child {
+        padding-top: 0;
+      }
+
+      .service-item .s-clinic {
+        font-weight: 600;
+        color: #1e40af;
+        font-size: 0.95rem;
+        margin-bottom: 0.4rem;
+      }
+      .service-item .s-schedule {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+      .service-item .s-contacts {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+      .service-item .s-contacts .contact-row {
+        font-size: 0.9rem;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      /* ===== Phone link - 醒目可点击 ===== */
+      .phone-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        color: #2563eb;
+        font-weight: 600;
+        text-decoration: none;
+        padding: 0.25rem 0.65rem;
+        border-radius: 6px;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        transition: all 0.15s;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+      .phone-link:hover {
+        background: #dbeafe;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      }
+      .phone-link:active {
+        transform: scale(0.96);
+      }
+      .phone-link .phone-icon {
+        font-size: 0.95rem;
+        flex-shrink: 0;
+      }
+
+      /* ===== Footer ===== */
+      .page-footer {
+        text-align: center;
+        padding: 1.5rem;
+        font-size: 0.8rem;
+        color: #94a3b8;
+        border-top: 1px solid #e2e8f0;
+        background: #fff;
+        margin-top: 2rem;
+      }
+
+      /* ===== Toast ===== */
+      .toast {
+        position: fixed;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%) translateY(80px);
+        background: #1e293b;
+        color: #f1f5f9;
+        padding: 0.65rem 1.25rem;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        opacity: 0;
+        transition: all 0.3s ease;
+        z-index: 200;
+        pointer-events: none;
+        white-space: nowrap;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      /* ===== Responsive ===== */
+      @media (max-width: 640px) {
+        .hero h1 { font-size: 1.35rem; }
+        .city-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.65rem; }
+        .city-card { padding: 0.75rem 0.5rem; }
+        .city-card .city-name { font-size: 0.9rem; }
+        .hospital-header-bar { flex-direction: column; align-items: stretch; }
+        .search-box { max-width: 100%; }
+        .modal-content { max-height: 90vh; border-radius: 12px; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- Header -->
+    <header class="page-header">
+      <div class="container" style="display:flex;align-items:center;justify-content:space-between;padding-top:0.65rem;padding-bottom:0.65rem;">
+        <div class="brand">🏥 造口伤口门诊名录</div>
+        <div class="province-selector">
+          <select id="provinceSelect" onchange="onProvinceChange()">
+            <option value="">加载中...</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+      <h1 id="heroTitle">造口伤口门诊名录</h1>
+      <p>
+        收录各地市的造口伤口门诊信息，方便患者就近就医。
+        点击城市查看该市医院列表。
+      </p>
+    </section>
+
+    <!-- Main content -->
+    <div class="container">
+
+      <!-- City grid -->
+      <div class="section-title">
+        📍 选择城市
+        <span class="badge" id="total-hospitals-badge"></span>
+      </div>
+      <div class="city-grid" id="city-grid">
+        <div class="loading-state" id="city-loading">
+          <div class="spinner"></div>
+          <div>正在加载城市数据...</div>
+        </div>
+      </div>
+
+      <!-- Hospital list -->
+      <div class="hospital-section" id="hospital-section">
+        <div class="hospital-header-bar">
+          <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+            <button class="back-btn" id="back-btn">← 返回</button>
+            <h2 id="city-title"></h2>
+            <span class="count-tag" id="city-count-tag"></span>
+          </div>
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" placeholder="搜索医院名称..." autocomplete="off" />
+          </div>
+        </div>
+        <div class="hospital-list" id="hospital-list"></div>
       </div>
     </div>
-  </div>
 
-  <!-- Main Container -->
-  <div class="container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-card">
-        <div class="sidebar-title">城市列表</div>
-        <ul class="city-list" id="cityList">
-          <li class="city-item active" data-city-id="" onclick="onCityClick('', this)">全部</li>
-        </ul>
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-head">
+          <h3 id="modal-title"></h3>
+          <button class="modal-close" id="modal-close">✕</button>
+        </div>
+        <div class="modal-body" id="modal-body"></div>
       </div>
-    </aside>
+    </div>
 
-    <!-- Main Content -->
-    <main class="main">
-      <div class="stats-bar" id="statsBar"></div>
-      <div class="loading-state" id="loadingState">
-        <div class="spinner"></div>
-        <div>正在加载医院数据...</div>
-      </div>
-      <div id="hospitalList"></div>
-    </main>
-  </div>
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
 
-  <script>
-    // ============================================================
-    // 数据状态
-    // ============================================================
-    let provinces = [];
-    let cities = [];
-    let hospitals = [];
-    let currentProvinceId = 1; // 默认辽宁
-    let currentCityId = '';
+    <!-- Footer -->
+    <div class="page-footer">
+      仅供信息参考，就诊前请电话确认出诊时间
+    </div>
 
-    const API_BASE = window.location.origin;
+    <script>
+      (function () {
+        'use strict';
 
-    // ============================================================
-    // 数据加载
-    // ============================================================
+        // ===== DOM refs =====
+        var cityGrid = document.getElementById('city-grid');
+        var hospitalSection = document.getElementById('hospital-section');
+        var hospitalList = document.getElementById('hospital-list');
+        var cityTitle = document.getElementById('city-title');
+        var cityCountTag = document.getElementById('city-count-tag');
+        var searchInput = document.getElementById('search-input');
+        var backBtn = document.getElementById('back-btn');
+        var totalBadge = document.getElementById('total-hospitals-badge');
+        var heroTitle = document.getElementById('heroTitle');
+        var provinceSelect = document.getElementById('provinceSelect');
+        var cityLoading = document.getElementById('city-loading');
 
-    async function loadProvinces() {
-      try {
-        const resp = await fetch(`${API_BASE}/api/public/provinces`);
-        const result = await resp.json();
-        provinces = result.data || [];
-        renderProvinceSelector();
-      } catch (err) {
-        console.error('加载省份失败:', err);
-      }
-    }
+        var modalOverlay = document.getElementById('modal-overlay');
+        var modalTitle = document.getElementById('modal-title');
+        var modalBody = document.getElementById('modal-body');
+        var modalClose = document.getElementById('modal-close');
+        var toastEl = document.getElementById('toast');
 
-    async function loadCities(provinceId) {
-      try {
-        const resp = await fetch(`${API_BASE}/api/public/cities?provinceId=${provinceId}`);
-        const result = await resp.json();
-        cities = (result.data || []).map(function(c) {
-          return { id: c.id, name: c.name, pinyin: c.pinyin, count: c.count };
-        });
-        renderCityList();
-      } catch (err) {
-        console.error('加载城市失败:', err);
-      }
-    }
+        // ===== State =====
+        var API_BASE = window.location.origin;
+        var provinces = [];
+        var cities = [];
+        var currentProvinceCode = '';
+        var currentCityCode = null;
+        var currentHospitals = [];
+        var allHospitals = [];
 
-    async function loadHospitals(provinceId, cityId) {
-      document.getElementById('loadingState').style.display = 'block';
-      document.getElementById('hospitalList').innerHTML = '';
+        // ===== Clinic type mapping (English value -> Chinese label) =====
+        var clinicTypeMap = {
+          'stoma': '造口门诊',
+          'wound': '伤口门诊',
+          'nursing': '护理门诊',
+          'stoma_wound': '造口伤口门诊',
+          'stoma_wound_general': '造口伤口门诊（普外科）',
+          'stoma_wound_gi': '胃肠外科造口伤口门诊',
+          'stoma_wound_urology': '造口伤口门诊（泌尿外科）',
+          'stoma_urostomy': '造口门诊（泌尿造口）',
+          'stoma_colostomy': '造口门诊（肠造口）',
+          'wound_stoma_center': '伤口造口中心',
+          'other': '其他'
+        };
 
-      try {
-        var url = `${API_BASE}/api/public/hospitals?provinceId=${provinceId}`;
-        if (cityId) url += `&cityId=${cityId}`;
+        var levelMap = {
+          'level_3a': '三甲',
+          'level_3b': '三乙',
+          'level_2a': '二甲',
+          'level_2b': '二乙',
+          'level_1a': '一甲',
+          'other': '其他'
+        };
 
-        const resp = await fetch(url);
-        const result = await resp.json();
-        hospitals = (result.data || []).map(function(h) {
-          return {
-            id: h.id,
-            cityId: String(h.cityId),
-            cityName: h.city ? h.city.name : '',
-            name: h.name,
-            level: h.level,
-            address: h.address,
-            intro: h.intro,
-            logo: h.logo,
-            clinicServices: (h.clinicServices || []).map(function(cs) {
-              return {
-                id: cs.id,
-                clinicType: cs.clinicType,
-                intro: cs.intro,
-                schedule: formatSchedule(cs.schedules || []),
-                contacts: (cs.phones || []).map(function(p) {
-                  return {
-                    name: p.contactPerson || p.phoneName,
-                    phone: p.phoneNumber,
-                  };
-                }),
-              };
-            }),
-          };
-        });
-        renderHospitalList();
-      } catch (err) {
-        console.error('加载医院失败:', err);
-        document.getElementById('hospitalList').innerHTML =
-          '<div class="error-state">加载失败，请检查网络连接后重试</div>';
-      } finally {
-        document.getElementById('loadingState').style.display = 'none';
-      }
-    }
-
-    // ============================================================
-    // schedule 格式化: 将 ClinicSchedule[] 转为可读文字
-    // ============================================================
-    function formatSchedule(schedules) {
-      if (!schedules || schedules.length === 0) return '详见医院公告';
-
-      const days = ['一', '二', '三', '四', '五', '六', '日'];
-      const parts = [];
-
-      // 尝试合并连续相同的时间段
-      var i = 0;
-      while (i < schedules.length) {
-        const s = schedules[i];
-        const slots = [];
-        if (s.hasMorning) slots.push('上午');
-        if (s.hasAfternoon) slots.push('下午');
-        if (s.hasEvening) slots.push('晚上');
-        if (slots.length === 0) { i++; continue; }
-
-        const startDay = s.dayOfWeek;
-        var endDay = s.dayOfWeek;
-
-        // 查找连续相同模式的日期
-        while (i + 1 < schedules.length) {
-          const next = schedules[i + 1];
-          const nextSlots = [];
-          if (next.hasMorning) nextSlots.push('上午');
-          if (next.hasAfternoon) nextSlots.push('下午');
-          if (next.hasEvening) nextSlots.push('晚上');
-          if (nextSlots.join(',') === slots.join(',') && next.dayOfWeek === endDay + 1) {
-            endDay = next.dayOfWeek;
-            i++;
-          } else {
-            break;
-          }
+        // ===== Toast =====
+        var toastTimer = null;
+        function showToast(msg) {
+          toastEl.textContent = msg;
+          toastEl.classList.add('show');
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2000);
         }
 
-        const slotStr = slots.join('、');
-        if (startDay === endDay) {
-          parts.push('周' + days[startDay - 1] + ' ' + slotStr);
-        } else {
-          parts.push('周' + days[startDay - 1] + '至周' + days[endDay - 1] + ' ' + slotStr);
+        // ===== Helper: escape HTML =====
+        function escHtml(str) {
+          if (!str) return '';
+          var div = document.createElement('div');
+          div.textContent = String(str);
+          return div.innerHTML;
         }
-        i++;
-      }
 
-      return parts.length > 0 ? parts.join('；') : '详见医院公告';
-    }
-
-    // ============================================================
-    // 渲染
-    // ============================================================
-
-    function renderProvinceSelector() {
-      var sel = document.getElementById('provinceSelect');
-      var html = '';
-      for (var i = 0; i < provinces.length; i++) {
-        var selected = provinces[i].id === currentProvinceId ? ' selected' : '';
-        html += '<option value="' + provinces[i].id + '"' + selected + '>' + provinces[i].name + '</option>';
-      }
-      sel.innerHTML = html;
-    }
-
-    function renderCityList() {
-      var ul = document.getElementById('cityList');
-      var totalCount = 0;
-      for (var i = 0; i < cities.length; i++) {
-        totalCount += cities[i].count;
-      }
-
-      var html = '<li class="city-item' + (currentCityId === '' ? ' active' : '') +
-        '" data-city-id="" onclick="onCityClick(\'\', this)">全部<span class="city-count">' + totalCount + '</span></li>';
-
-      for (var i = 0; i < cities.length; i++) {
-        var active = currentCityId === String(cities[i].id) ? ' active' : '';
-        html += '<li class="city-item' + active + '" data-city-id="' + cities[i].id +
-          '" onclick="onCityClick(\'' + cities[i].id + '\', this)">' +
-          cities[i].name + '<span class="city-count">' + (cities[i].count || 0) + '</span></li>';
-      }
-      ul.innerHTML = html;
-    }
-
-    function renderHospitalList() {
-      document.getElementById('statsBar').innerHTML =
-        '<span>共找到 <span class="count">' + hospitals.length + '</span> 家医院</span>';
-
-      if (hospitals.length === 0) {
-        document.getElementById('hospitalList').innerHTML =
-          '<div class="empty-state">暂无医院数据</div>';
-        return;
-      }
-
-      var html = '';
-      for (var i = 0; i < hospitals.length; i++) {
-        var h = hospitals[i];
-        html += '<div class="hospital-card">';
-        html += '  <div class="hospital-header">';
-        html += '    <span class="hospital-name">' + escapeHtml(h.name) + '</span>';
-        html += '    <span class="hospital-level">' + escapeHtml(h.level || '--') + '</span>';
-        if (h.cityName) {
-          html += '    <span class="hospital-city">' + escapeHtml(h.cityName) + '</span>';
+        // ===== Helper: map clinic type =====
+        function mapClinicType(value) {
+          if (!value) return '';
+          return clinicTypeMap[value] || value;
         }
-        html += '  </div>';
 
-        if (h.clinicServices && h.clinicServices.length > 0) {
-          html += '  <div class="service-list">';
-          for (var j = 0; j < h.clinicServices.length; j++) {
-            var cs = h.clinicServices[j];
-            html += '    <div class="service-item">';
-            html += '      <div class="service-type">' + escapeHtml(cs.clinicType) + '</div>';
-            html += '      <div class="service-schedule">门诊时间：' + escapeHtml(cs.schedule) + '</div>';
-            if (cs.contacts && cs.contacts.length > 0) {
-              html += '      <div class="service-contacts">';
-              for (var k = 0; k < cs.contacts.length; k++) {
-                var ct = cs.contacts[k];
-                html += '        <span class="contact-tag">';
-                if (ct.name) html += escapeHtml(ct.name) + ' ';
-                html += '<span class="phone">' + escapeHtml(ct.phone) + '</span>';
-                html += '        </span>';
+        // ===== Helper: map level =====
+        function mapLevel(value) {
+          if (!value) return '';
+          return levelMap[value] || value;
+        }
+
+        // ===== Helper: format schedule =====
+        function formatSchedule(schedules) {
+          if (!schedules || schedules.length === 0) return '详见医院公告';
+          var days = ['一', '二', '三', '四', '五', '六', '日'];
+          var parts = [];
+          var i = 0;
+          while (i < schedules.length) {
+            var s = schedules[i];
+            var slots = [];
+            if (s.hasMorning) slots.push('上午');
+            if (s.hasAfternoon) slots.push('下午');
+            if (s.hasEvening) slots.push('晚上');
+            if (slots.length === 0) { i++; continue; }
+            var startDay = s.dayOfWeek;
+            var endDay = s.dayOfWeek;
+            while (i + 1 < schedules.length) {
+              var next = schedules[i + 1];
+              var nextSlots = [];
+              if (next.hasMorning) nextSlots.push('上午');
+              if (next.hasAfternoon) nextSlots.push('下午');
+              if (next.hasEvening) nextSlots.push('晚上');
+              if (nextSlots.join(',') === slots.join(',') && next.dayOfWeek === endDay + 1) {
+                endDay = next.dayOfWeek;
+                i++;
+              } else {
+                break;
               }
-              html += '      </div>';
             }
-            html += '    </div>';
+            var slotStr = slots.join('、');
+            if (startDay === endDay) {
+              parts.push('周' + days[startDay - 1] + ' ' + slotStr);
+            } else {
+              parts.push('周' + days[startDay - 1] + '至周' + days[endDay - 1] + ' ' + slotStr);
+            }
+            i++;
           }
-          html += '  </div>';
+          return parts.length > 0 ? parts.join('；') : '详见医院公告';
         }
 
-        if (h.address) {
-          html += '  <div class="hospital-footer">';
-          html += '    <div class="address">地址：' + escapeHtml(h.address) + '</div>';
-          html += '  </div>';
+        // ===== API: Load provinces =====
+        async function loadProvinces() {
+          try {
+            var resp = await fetch(API_BASE + '/api/public/provinces');
+            var result = await resp.json();
+            provinces = result.data || result || [];
+            renderProvinceSelector();
+          } catch (err) {
+            console.error('加载省份失败:', err);
+          }
         }
 
-        html += '</div>';
-      }
+        function renderProvinceSelector() {
+          var html = '';
+          for (var i = 0; i < provinces.length; i++) {
+            var selected = provinces[i].code === currentProvinceCode ? ' selected' : '';
+            html += '<option value="' + provinces[i].code + '"' + selected + '>' + escHtml(provinces[i].name) + '</option>';
+          }
+          provinceSelect.innerHTML = html;
+          updateHeroTitle();
+        }
 
-      document.getElementById('hospitalList').innerHTML = html;
-    }
+        function updateHeroTitle() {
+          var prov = provinces.find(function (p) { return p.code === currentProvinceCode; });
+          var provName = prov ? prov.name : '';
+          if (provName) {
+            heroTitle.textContent = provName + '造口伤口门诊名录';
+          } else {
+            heroTitle.textContent = '造口伤口门诊名录';
+          }
+        }
 
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
+        // ===== API: Load cities =====
+        async function loadCities(provinceCode) {
+          if (cityLoading) cityLoading.style.display = 'block';
+          cityGrid.innerHTML = '';
+          if (cityLoading) cityGrid.appendChild(cityLoading);
 
-    // ============================================================
-    // 事件处理
-    // ============================================================
+          try {
+            var resp = await fetch(API_BASE + '/api/public/cities?provinceCode=' + provinceCode);
+            var result = await resp.json();
+            cities = (result.data || result || []).map(function (c) {
+              return { id: c.id, code: c.code, name: c.name, count: c.count || 0 };
+            });
+            renderCities();
+          } catch (err) {
+            console.error('加载城市失败:', err);
+            cityGrid.innerHTML = '<div class="empty-state"><p>加载城市失败，请刷新重试</p></div>';
+          }
+        }
 
-    function onProvinceChange() {
-      var sel = document.getElementById('provinceSelect');
-      currentProvinceId = parseInt(sel.value) || 1;
-      currentCityId = '';
-      loadCities(currentProvinceId);
-      loadHospitals(currentProvinceId, '');
-    }
+        // ===== API: Load hospitals =====
+        async function loadHospitals(provinceCode, cityCode) {
+          hospitalList.innerHTML = '<div class="loading-state"><div class="spinner"></div><div>正在加载医院数据...</div></div>';
 
-    function onCityClick(cityId, el) {
-      currentCityId = cityId;
-      // 更新激活状态
-      var items = document.querySelectorAll('.city-item');
-      for (var i = 0; i < items.length; i++) {
-        items[i].classList.remove('active');
-      }
-      el.classList.add('active');
-      loadHospitals(currentProvinceId, cityId);
-    }
+          try {
+            var url = API_BASE + '/api/public/hospitals?provinceCode=' + provinceCode;
+            if (cityCode) url += '&cityCode=' + cityCode;
 
-    // ============================================================
-    // 初始化
-    // ============================================================
+            var resp = await fetch(url);
+            var result = await resp.json();
+            allHospitals = (result.data || result || []).map(function (h) {
+              return {
+                id: h.id,
+                name: h.name,
+                level: h.level,
+                address: h.address,
+                cityName: h.city ? h.city.name : '',
+                clinicServices: (h.clinicServices || []).map(function (cs) {
+                  return {
+                    id: cs.id,
+                    clinicType: mapClinicType(cs.clinicType),
+                    intro: cs.intro,
+                    schedule: formatSchedule(cs.schedules || []),
+                    contacts: (cs.phones || []).map(function (p) {
+                      return {
+                        name: p.contactPerson || p.phoneName || '',
+                        phone: p.phoneNumber || ''
+                      };
+                    })
+                  };
+                })
+              };
+            });
+          } catch (err) {
+            console.error('加载医院失败:', err);
+            allHospitals = [];
+          }
+        }
 
-    (function init() {
-      loadProvinces();
-      loadCities(currentProvinceId);
-      loadHospitals(currentProvinceId, '');
-    })();
-  </script>
-</body>
+        // ===== Render cities =====
+        function renderCities() {
+          var totalCount = 0;
+          for (var i = 0; i < cities.length; i++) {
+            totalCount += cities[i].count;
+          }
+          totalBadge.textContent = '共 ' + totalCount + ' 家医院';
+
+          var cityIcon = '🏙️';
+          cityGrid.innerHTML = cities.map(function (c) {
+            var hasHosp = c.count > 0;
+            return '<div class="city-card" data-city-code="' + c.code + '">' +
+              '<span class="city-icon">' + cityIcon + '</span>' +
+              '<div class="city-name">' + escHtml(c.name) + '</div>' +
+              '<div class="city-count ' + (!hasHosp ? 'empty' : '') + '">' +
+              (hasHosp ? c.count + ' 家医院' : '暂无数据') +
+              '</div></div>';
+          }).join('');
+        }
+
+        // ===== Render hospitals =====
+        function renderHospitals(hospitals) {
+          if (hospitals.length === 0) {
+            hospitalList.innerHTML =
+              '<div class="empty-state">' +
+              '<span class="empty-icon">🔍</span>' +
+              '<p>未找到匹配的医院，请尝试其他关键词</p>' +
+              '</div>';
+            return;
+          }
+          hospitalList.innerHTML = hospitals.map(function (h) {
+            var service = h.clinicServices && h.clinicServices.length > 0 ? h.clinicServices[0] : null;
+            var clinicInfo = service ? service.clinicType : '';
+            var scheduleInfo = service ? service.schedule : '';
+            var contactNames = '';
+            if (service && service.contacts && service.contacts.length > 0) {
+              contactNames = service.contacts.map(function (c) { return c.name; }).filter(Boolean).join('、');
+            }
+            return '<div class="hospital-card" data-hospital-id="' + h.id + '">' +
+              '<div class="h-name">' + escHtml(h.name) + '</div>' +
+              '<div class="h-meta">' +
+              (clinicInfo ? '<span>🏥 ' + escHtml(clinicInfo) + '</span>' : '') +
+              (scheduleInfo ? '<span>🕐 ' + escHtml(scheduleInfo) + '</span>' : '') +
+              (contactNames ? '<span>👤 ' + escHtml(contactNames) + '</span>' : '') +
+              '</div></div>';
+          }).join('');
+        }
+
+        // ===== Show hospital section =====
+        async function showCityHospitals(cityCode) {
+          currentCityCode = cityCode;
+          var city = cities.find(function (c) { return c.code === cityCode; });
+          if (!city) return;
+
+          cityTitle.textContent = city.name + ' · 医院列表';
+          cityCountTag.textContent = city.count + ' 家医院';
+
+          hospitalSection.classList.add('visible');
+          searchInput.value = '';
+          hospitalSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+          await loadHospitals(currentProvinceCode, cityCode);
+          currentHospitals = allHospitals;
+          renderHospitals(currentHospitals);
+        }
+
+        // ===== Build modal content =====
+        function buildModalContent(hospital) {
+          if (!hospital.clinicServices || hospital.clinicServices.length === 0) {
+            return '<div class="empty-state"><p>暂无门诊服务信息</p></div>';
+          }
+          return hospital.clinicServices.map(function (s) {
+            var contactsHtml = '';
+            if (s.contacts && s.contacts.length > 0) {
+              contactsHtml = s.contacts.map(function (c) {
+                if (c.phone) {
+                  return '<div class="contact-row">' +
+                    (c.name ? '<span>' + escHtml(c.name) + '</span>' : '') +
+                    '<a class="phone-link" href="tel:' + c.phone.replace(/\s+/g, '') + '">' +
+                    '<span class="phone-icon">📞</span>' +
+                    escHtml(c.phone) +
+                    '</a></div>';
+                }
+                return c.name ? '<div class="contact-row"><span>' + escHtml(c.name) + '</span></div>' : '';
+              }).join('');
+            } else {
+              contactsHtml = '<div style="color:#94a3b8;font-size:0.85rem;">暂无联系方式</div>';
+            }
+            return '<div class="service-item">' +
+              '<div class="s-clinic">' + escHtml(s.clinicType) + '</div>' +
+              '<div class="s-schedule">🕐 ' + escHtml(s.schedule) + '</div>' +
+              '<div class="s-contacts">' + contactsHtml + '</div>' +
+              '</div>';
+          }).join('');
+        }
+
+        // ===== Open modal =====
+        function openModal(hospitalId) {
+          var hospital = allHospitals.find(function (h) { return h.id === hospitalId; });
+          if (!hospital) return;
+
+          modalTitle.textContent = hospital.name;
+          modalBody.innerHTML = buildModalContent(hospital);
+          modalOverlay.classList.add('open');
+          document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+          modalOverlay.classList.remove('open');
+          document.body.style.overflow = '';
+        }
+
+        // ===== Helper: update URL param =====
+        function updateUrlProvince(provCode) {
+          var url = new URL(window.location.href);
+          url.searchParams.set('provinceCode', provCode);
+          window.history.replaceState({}, '', url.toString());
+        }
+
+        // ===== Province change =====
+        window.onProvinceChange = function () {
+          currentProvinceCode = provinceSelect.value;
+          currentCityCode = null;
+          hospitalSection.classList.remove('visible');
+          updateHeroTitle();
+          updateUrlProvince(currentProvinceCode);
+          loadCities(currentProvinceCode);
+        };
+
+        // ===== Event delegation =====
+
+        // City click
+        cityGrid.addEventListener('click', function (e) {
+          var card = e.target.closest('.city-card');
+          if (!card) return;
+          var cityCode = card.dataset.cityCode;
+          var city = cities.find(function (c) { return c.code === cityCode; });
+          if (!city || city.count === 0) {
+            showToast(city ? city.name + ' 暂无收录的医院数据' : '暂无数据');
+            return;
+          }
+          showCityHospitals(cityCode);
+        });
+
+        // Hospital card click -> modal
+        hospitalList.addEventListener('click', function (e) {
+          var card = e.target.closest('.hospital-card');
+          if (!card) return;
+          openModal(parseInt(card.dataset.hospitalId));
+        });
+
+        // Back button
+        backBtn.addEventListener('click', function () {
+          hospitalSection.classList.remove('visible');
+          currentCityCode = null;
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Search
+        searchInput.addEventListener('input', function () {
+          var keyword = this.value.trim().toLowerCase();
+          var filtered = keyword
+            ? currentHospitals.filter(function (h) { return h.name.toLowerCase().indexOf(keyword) !== -1; })
+            : currentHospitals;
+          renderHospitals(filtered);
+        });
+
+        // Modal close
+        modalClose.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', function (e) {
+          if (e.target === this) closeModal();
+        });
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') closeModal();
+        });
+
+        // ===== Init =====
+        (async function init() {
+          // 从 URL 读取省份参数
+          var urlParams = new URLSearchParams(window.location.search);
+          var urlProvinceCode = urlParams.get('provinceCode');
+          if (urlProvinceCode) {
+            currentProvinceCode = urlProvinceCode;
+          }
+
+          await loadProvinces();
+
+          // 校验 URL 中的省份是否有效，无效则回退到第一个
+          if (provinces.length > 0 && !provinces.find(function (p) { return p.code === currentProvinceCode; })) {
+            currentProvinceCode = provinces[0].code;
+          }
+
+          // 同步下拉选中项并更新 URL
+          provinceSelect.value = currentProvinceCode;
+          updateUrlProvince(currentProvinceCode);
+          updateHeroTitle();
+          await loadCities(currentProvinceCode);
+        })();
+      })();
+    </script>
+  </body>
 </html>

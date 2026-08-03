@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsInt, IsBoolean } from 'class-validator';
+import { IsOptional, IsString, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 
@@ -8,20 +8,19 @@ export class QueryHospitalDto extends PaginationDto {
   name?: string;
 
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  provinceId?: number;
+  @IsString()
+  provinceCode?: string;
 
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  cityId?: number;
+  @IsString()
+  cityCode?: string;
 
   @IsOptional()
   @IsString()
   level?: string;
 
   @IsOptional()
+  @Type(() => Boolean)
   @IsBoolean()
   isPublished?: boolean;
 }

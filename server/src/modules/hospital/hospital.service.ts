@@ -10,7 +10,7 @@ export class HospitalService {
   constructor(private prisma: PrismaService) {}
 
   async findMany(query: QueryHospitalDto, dataScope: { provinceIds: number[] | null }) {
-    const { page = 1, pageSize = 20, name, provinceId, cityId, level, isPublished } = query;
+    const { page = 1, pageSize = 20, name, provinceCode, cityCode, level, isPublished } = query;
 
     const where: Prisma.HospitalWhereInput = {
       deletedAt: null,
@@ -20,8 +20,20 @@ export class HospitalService {
       where.provinceId = { in: dataScope.provinceIds };
     }
 
-    if (provinceId) where.provinceId = provinceId;
-    if (cityId) where.cityId = cityId;
+    if (provinceCode) {
+      const province = await this.prisma.province.findUnique({
+        where: { code: provinceCode },
+      });
+      if (province) where.provinceId = province.id;
+    }
+
+    if (cityCode) {
+      const city = await this.prisma.city.findUnique({
+        where: { code: cityCode },
+      });
+      if (city) where.cityId = city.id;
+    }
+
     if (level) where.level = level;
     if (isPublished !== undefined) where.isPublished = isPublished;
     if (name) where.name = { contains: name };

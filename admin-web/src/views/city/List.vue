@@ -3,7 +3,7 @@
     <!-- 操作栏 -->
     <div class="toolbar">
       <el-select v-model="selectedProvince" placeholder="选择省份" @change="fetchData" style="width: 150px">
-        <el-option v-for="p in provinces" :key="p.id" :label="p.name" :value="p.id" />
+        <el-option v-for="p in provinces" :key="p.id" :label="p.name" :value="p.code" />
       </el-select>
       <el-button type="primary" @click="openDialog()" :disabled="!selectedProvince">新增城市</el-button>
     </div>
@@ -61,7 +61,7 @@ const authStore = useAuthStore();
 const loading = ref(false);
 const list = ref<any[]>([]);
 const provinces = ref<any[]>([]);
-const selectedProvince = ref<number | undefined>();
+const selectedProvince = ref<string | undefined>();
 const dialogVisible = ref(false);
 const editing = ref<any>(null);
 const form = reactive({ code: '', name: '', sortOrder: 0, isEnabled: true, provinceId: 0 });
@@ -70,7 +70,7 @@ async function fetchData() {
   if (!selectedProvince.value) return;
   loading.value = true;
   try {
-    list.value = await request.get('/admin/cities', { params: { provinceId: selectedProvince.value } }) as unknown as any[];
+    list.value = await request.get('/admin/cities', { params: { provinceCode: selectedProvince.value } }) as unknown as any[];
   } finally {
     loading.value = false;
   }
@@ -81,7 +81,7 @@ function openDialog(row?: any) {
   if (row) {
     Object.assign(form, row);
   } else {
-    Object.assign(form, { code: '', name: '', sortOrder: 0, isEnabled: true, provinceId: selectedProvince.value });
+    Object.assign(form, { code: '', name: '', sortOrder: 0, isEnabled: true, provinceId: provinces.value.find(p => p.code === selectedProvince.value)?.id || 0 });
   }
   dialogVisible.value = true;
 }
@@ -114,10 +114,10 @@ async function handleAction(cmd: string, row: any) {
 
 onMounted(async () => {
   provinces.value = await getProvinces() as unknown as any[];
-  if (!authStore.isSuperAdmin() && authStore.getProvinceIds().length > 0) {
-    selectedProvince.value = authStore.getProvinceIds()[0];
+  if (!authStore.isSuperAdmin() && authStore.getProvinceCodes().length > 0) {
+    selectedProvince.value = authStore.getProvinceCodes()[0];
   } else if (provinces.value.length > 0) {
-    selectedProvince.value = provinces.value[0].id;
+    selectedProvince.value = provinces.value[0].code;
   }
   if (selectedProvince.value) {
     fetchData();

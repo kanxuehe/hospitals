@@ -115,7 +115,7 @@ export class AuthService {
         lastLoginAt: true,
         provinces: {
           include: {
-            province: { select: { id: true, name: true } },
+            province: { select: { id: true, code: true, name: true } },
           },
         },
       },
