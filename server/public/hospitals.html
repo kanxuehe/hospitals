@@ -603,29 +603,29 @@
         var currentHospitals = [];
         var allHospitals = [];
 
-        // ===== Clinic type mapping (English value -> Chinese label) =====
-        var clinicTypeMap = {
-          'stoma': '造口门诊',
-          'wound': '伤口门诊',
-          'nursing': '护理门诊',
-          'stoma_wound': '造口伤口门诊',
-          'stoma_wound_general': '造口伤口门诊（普外科）',
-          'stoma_wound_gi': '胃肠外科造口伤口门诊',
-          'stoma_wound_urology': '造口伤口门诊（泌尿外科）',
-          'stoma_urostomy': '造口门诊（泌尿造口）',
-          'stoma_colostomy': '造口门诊（肠造口）',
-          'wound_stoma_center': '伤口造口中心',
-          'other': '其他'
-        };
+        // ===== 字典映射（从 /api/public/dicts 加载）=====
+        var dictMaps = {}; // { typeCode: { value: label } }
 
-        var levelMap = {
-          'level_3a': '三甲',
-          'level_3b': '三乙',
-          'level_2a': '二甲',
-          'level_2b': '二乙',
-          'level_1a': '一甲',
-          'other': '其他'
-        };
+        function getDictMap(typeCode) {
+          return dictMaps[typeCode] || {};
+        }
+
+        function mapDictValue(typeCode, value) {
+          if (!value) return '';
+          return getDictMap(typeCode)[value] || value;
+        }
+
+        function mapPhoneType(value) {
+          return mapDictValue('phone_type', value);
+        }
+
+        function mapClinicType(value) {
+          return mapDictValue('clinic_type', value);
+        }
+
+        function mapLevel(value) {
+          return mapDictValue('hospital_level', value);
+        }
 
         // ===== Toast =====
         var toastTimer = null;
@@ -644,18 +644,6 @@
           return div.innerHTML;
         }
 
-        // ===== Helper: map clinic type =====
-        function mapClinicType(value) {
-          if (!value) return '';
-          return clinicTypeMap[value] || value;
-        }
-
-        // ===== Helper: map level =====
-        function mapLevel(value) {
-          if (!value) return '';
-          return levelMap[value] || value;
-        }
-
         // ===== Helper: format schedule =====
         function formatSchedule(schedules) {
           if (!schedules || schedules.length === 0) return '详见医院公告';
@@ -667,7 +655,6 @@
             var slots = [];
             if (s.hasMorning) slots.push('上午');
             if (s.hasAfternoon) slots.push('下午');
-            if (s.hasEvening) slots.push('晚上');
             if (slots.length === 0) { i++; continue; }
             var startDay = s.dayOfWeek;
             var endDay = s.dayOfWeek;
@@ -676,7 +663,6 @@
               var nextSlots = [];
               if (next.hasMorning) nextSlots.push('上午');
               if (next.hasAfternoon) nextSlots.push('下午');
-              if (next.hasEvening) nextSlots.push('晚上');
               if (nextSlots.join(',') === slots.join(',') && next.dayOfWeek === endDay + 1) {
                 endDay = next.dayOfWeek;
                 i++;
@@ -684,7 +670,8 @@
                 break;
               }
             }
-            var slotStr = slots.join('、');
+            // 上午和下午都选中时显示"全天"
+            var slotStr = slots.join(',') === '上午,下午' ? '全天' : slots.join('、');
             if (startDay === endDay) {
               parts.push('周' + days[startDay - 1] + ' ' + slotStr);
             } else {
@@ -704,6 +691,26 @@
             renderProvinceSelector();
           } catch (err) {
             console.error('加载省份失败:', err);
+          }
+        }
+
+        // ===== API: Load dicts =====
+        async function loadDicts() {
+          try {
+            var resp = await fetch(API_BASE + '/api/public/dicts?typeCodes=clinic_type,hospital_level,phone_type');
+            var result = await resp.json();
+            var list = result.data || result || [];
+            for (var i = 0; i < list.length; i++) {
+              var type = list[i];
+              var map = {};
+              var items = type.items || [];
+              for (var j = 0; j < items.length; j++) {
+                map[items[j].value] = items[j].label;
+              }
+              dictMaps[type.code] = map;
+            }
+          } catch (err) {
+            console.error('加载字典失败:', err);
           }
         }
 
@@ -771,7 +778,7 @@
                     schedule: formatSchedule(cs.schedules || []),
                     contacts: (cs.phones || []).map(function (p) {
                       return {
-                        name: p.contactPerson || p.phoneName || '',
+                        name: p.contactPerson || mapPhoneType(p.phoneType) || '',
                         phone: p.phoneNumber || ''
                       };
                     })
@@ -985,6 +992,7 @@
           }
           applyShowProvince();
 
+          await loadDicts();
           await loadProvinces();
 
           // 校验 URL 中的省份是否有效，无效则回退到第一个

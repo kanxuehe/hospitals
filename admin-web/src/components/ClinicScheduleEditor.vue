@@ -12,11 +12,6 @@
           <el-checkbox v-model="row.hasAfternoon" />
         </template>
       </el-table-column>
-      <el-table-column label="晚上" width="80" align="center">
-        <template #default="{ row }">
-          <el-checkbox v-model="row.hasEvening" />
-        </template>
-      </el-table-column>
       <el-table-column label="备注">
         <template #default="{ row }">
           <el-input v-model="row.remark" placeholder="如：需预约" size="small" />

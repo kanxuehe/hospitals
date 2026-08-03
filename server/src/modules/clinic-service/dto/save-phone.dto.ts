@@ -4,7 +4,7 @@ import { Type } from 'class-transformer';
 export class CreatePhoneDto {
   @IsString()
   @MaxLength(50)
-  phoneName: string;
+  phoneType: string;
 
   @IsString()
   @MaxLength(50)

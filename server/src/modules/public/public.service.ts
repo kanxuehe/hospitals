@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class PublicService {
@@ -50,7 +51,7 @@ export class PublicService {
     });
     if (!province) return [];
 
-    const where: any = {
+    const where: Prisma.HospitalWhereInput = {
       isPublished: true,
       deletedAt: null,
       provinceId: province.id,
@@ -95,7 +96,7 @@ export class PublicService {
               orderBy: { sortOrder: 'asc' },
               select: {
                 id: true,
-                phoneName: true,
+                phoneType: true,
                 phoneNumber: true,
                 contactPerson: true,
               },
@@ -142,7 +143,7 @@ export class PublicService {
               orderBy: { sortOrder: 'asc' },
               select: {
                 id: true,
-                phoneName: true,
+                phoneType: true,
                 phoneNumber: true,
                 contactPerson: true,
               },
@@ -164,5 +165,19 @@ export class PublicService {
     });
 
     return hospital;
+  }
+
+  getDictItems(typeCodes: string[]) {
+    return this.prisma.dictType.findMany({
+      where: { code: { in: typeCodes } },
+      select: {
+        code: true,
+        items: {
+          where: { isEnabled: true },
+          orderBy: { sortOrder: 'asc' },
+          select: { value: true, label: true, sortOrder: true },
+        },
+      },
+    });
   }
 }

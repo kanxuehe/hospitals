@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateClinicServiceDto } from './dto/create-clinic-service.dto';
 import { UpdateClinicServiceDto } from './dto/update-clinic-service.dto';
@@ -9,7 +13,10 @@ import { CreatePhoneDto } from './dto/save-phone.dto';
 export class ClinicServiceService {
   constructor(private prisma: PrismaService) {}
 
-  async create(dto: CreateClinicServiceDto, dataScope: { provinceIds: number[] | null }) {
+  async create(
+    dto: CreateClinicServiceDto,
+    dataScope: { provinceIds: number[] | null },
+  ) {
     await this.checkHospitalAccess(dto.hospitalId, dataScope);
 
     return this.prisma.clinicService.create({
@@ -21,7 +28,11 @@ export class ClinicServiceService {
     });
   }
 
-  async update(id: number, dto: UpdateClinicServiceDto, dataScope: { provinceIds: number[] | null }) {
+  async update(
+    id: number,
+    dto: UpdateClinicServiceDto,
+    dataScope: { provinceIds: number[] | null },
+  ) {
     const service = await this.ensureServiceExists(id);
     await this.checkHospitalAccess(service.hospitalId, dataScope);
 
@@ -45,7 +56,11 @@ export class ClinicServiceService {
   }
 
   // === 门诊时间 ===
-  async saveSchedule(clinicServiceId: number, dto: SaveScheduleDto, dataScope: { provinceIds: number[] | null }) {
+  async saveSchedule(
+    clinicServiceId: number,
+    dto: SaveScheduleDto,
+    dataScope: { provinceIds: number[] | null },
+  ) {
     const service = await this.ensureServiceExists(clinicServiceId);
     await this.checkHospitalAccess(service.hospitalId, dataScope);
 
@@ -60,7 +75,7 @@ export class ClinicServiceService {
         dayOfWeek: s.dayOfWeek,
         hasMorning: s.hasMorning,
         hasAfternoon: s.hasAfternoon,
-        hasEvening: s.hasEvening,
+        hasEvening: s.hasEvening ?? false,
         remark: s.remark,
       })),
     });
@@ -72,7 +87,11 @@ export class ClinicServiceService {
   }
 
   // === 联系电话 ===
-  async createPhone(clinicServiceId: number, dto: CreatePhoneDto, dataScope: { provinceIds: number[] | null }) {
+  async createPhone(
+    clinicServiceId: number,
+    dto: CreatePhoneDto,
+    dataScope: { provinceIds: number[] | null },
+  ) {
     const service = await this.ensureServiceExists(clinicServiceId);
     await this.checkHospitalAccess(service.hospitalId, dataScope);
 
@@ -81,7 +100,11 @@ export class ClinicServiceService {
     });
   }
 
-  async updatePhone(phoneId: number, dto: Partial<CreatePhoneDto>, dataScope: { provinceIds: number[] | null }) {
+  async updatePhone(
+    phoneId: number,
+    dto: Partial<CreatePhoneDto>,
+    dataScope: { provinceIds: number[] | null },
+  ) {
     const phone = await this.prisma.phoneContact.findUnique({
       where: { id: phoneId },
       include: { clinicService: true },
@@ -96,7 +119,10 @@ export class ClinicServiceService {
     });
   }
 
-  async deletePhone(phoneId: number, dataScope: { provinceIds: number[] | null }) {
+  async deletePhone(
+    phoneId: number,
+    dataScope: { provinceIds: number[] | null },
+  ) {
     const phone = await this.prisma.phoneContact.findUnique({
       where: { id: phoneId },
       include: { clinicService: true },
@@ -110,19 +136,27 @@ export class ClinicServiceService {
   }
 
   private async ensureServiceExists(id: number) {
-    const service = await this.prisma.clinicService.findUnique({ where: { id } });
+    const service = await this.prisma.clinicService.findUnique({
+      where: { id },
+    });
     if (!service) throw new NotFoundException('门诊服务不存在');
     return service;
   }
 
-  private async checkHospitalAccess(hospitalId: number, dataScope: { provinceIds: number[] | null }) {
+  private async checkHospitalAccess(
+    hospitalId: number,
+    dataScope: { provinceIds: number[] | null },
+  ) {
     const hospital = await this.prisma.hospital.findFirst({
       where: { id: hospitalId, deletedAt: null },
       select: { provinceId: true },
     });
     if (!hospital) throw new NotFoundException('医院不存在');
 
-    if (dataScope.provinceIds !== null && !dataScope.provinceIds.includes(hospital.provinceId)) {
+    if (
+      dataScope.provinceIds !== null &&
+      !dataScope.provinceIds.includes(hospital.provinceId)
+    ) {
       throw new ForbiddenException('您无权操作该医院的数据');
     }
   }

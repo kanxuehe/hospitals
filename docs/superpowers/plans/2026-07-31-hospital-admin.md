@@ -5355,7 +5355,7 @@ async function handleSave() {
 <template>
   <div class="phone-editor">
     <el-table :data="phones" border size="small">
-      <el-table-column label="电话名称" width="140">
+      <el-table-column label="电话类型" width="140">
         <template #default="{ row }">
           <el-select v-model="row.phoneName" size="small" filterable allow-create>
             <el-option v-for="t in phoneTypes" :key="t.value" :label="t.label" :value="t.value" />

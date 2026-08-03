@@ -1,4 +1,11 @@
-import { Controller, Get, Param, ParseIntPipe, Query, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Query,
+  NotFoundException,
+} from '@nestjs/common';
 import { PublicService } from './public.service';
 import { Public } from '../../common/decorators/public.decorator';
 
@@ -10,6 +17,17 @@ export class PublicController {
   @Get('provinces')
   getProvinces() {
     return this.publicService.getProvinces();
+  }
+
+  @Get('dicts')
+  getDictItems(@Query('typeCodes') typeCodes: string) {
+    const codes = typeCodes
+      ? typeCodes
+          .split(',')
+          .map((c) => c.trim())
+          .filter(Boolean)
+      : [];
+    return this.publicService.getDictItems(codes);
   }
 
   @Get('cities')

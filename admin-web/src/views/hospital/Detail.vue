@@ -72,25 +72,21 @@
       <!-- Tab 2: 门诊服务 -->
       <el-tab-pane label="门诊服务" name="clinic" v-if="!isCreate">
         <div style="margin-bottom: 12px">
-          <el-button type="primary" @click="showClinicDialog = true"
-            >新增门诊服务</el-button
-          >
+          <el-button type="primary" @click="showClinicDialog = true">
+            新增门诊服务
+          </el-button>
         </div>
         <el-collapse v-model="expandedClinics">
-          <el-collapse-item
-            v-for="cs in hospital.clinicServices"
-            :key="cs.id"
-            :name="cs.id"
-          >
+          <el-collapse-item v-for="cs in hospital.clinicServices" :key="cs.id">
             <template #title>
-              <span style="font-weight: bold">{{ cs.clinicType }}</span>
-              <el-tag
+              <span style="font-weight: bold">{{ getClinicTypeLabel(cs.clinicType) }}</span>
+              <!-- <el-tag
                 size="small"
                 style="margin-left: 8px"
                 :type="cs.isPublished ? 'success' : 'info'"
               >
                 {{ cs.isPublished ? "已发布" : "未发布" }}
-              </el-tag>
+              </el-tag> -->
               <el-popconfirm
                 title="确定删除该门诊服务？"
                 @confirm="handleDeleteClinic(cs.id)"
@@ -291,6 +287,10 @@ const doctorForm = reactive<any>({
 });
 
 const phoneEditors = ref<any[]>([]);
+
+function getClinicTypeLabel(value: string) {
+  return clinicTypes.value.find((t) => t.value === value)?.label || value;
+}
 
 async function loadData() {
   loading.value = true;

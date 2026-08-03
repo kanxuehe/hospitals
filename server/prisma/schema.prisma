@@ -106,7 +106,7 @@ model ClinicSchedule {
 model PhoneContact {
   id              Int      @id @default(autoincrement())
   clinicServiceId Int      @map("clinic_service_id")
-  phoneName       String   @db.VarChar(50) @map("phone_name")
+  phoneType       String   @db.VarChar(50) @map("phone_type")
   phoneNumber     String   @db.VarChar(50) @map("phone_number")
   contactPerson   String?  @db.VarChar(50) @map("contact_person")
   remark          String?  @db.VarChar(200)

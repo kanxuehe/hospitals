@@ -1,7 +1,22 @@
-import { IsArray, IsInt, IsBoolean, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsInt,
+  IsBoolean,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ScheduleItemDto {
+  @IsOptional()
+  @IsInt()
+  id?: number;
+
+  @IsOptional()
+  @IsInt()
+  clinicServiceId?: number;
+
   @IsInt()
   dayOfWeek: number;
 
@@ -11,8 +26,9 @@ export class ScheduleItemDto {
   @IsBoolean()
   hasAfternoon: boolean;
 
+  @IsOptional()
   @IsBoolean()
-  hasEvening: boolean;
+  hasEvening?: boolean;
 
   @IsOptional()
   @IsString()
