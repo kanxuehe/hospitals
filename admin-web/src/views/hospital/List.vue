@@ -6,7 +6,7 @@
         <el-form-item label="医院名称">
           <el-input v-model="query.name" placeholder="搜索医院名称" clearable />
         </el-form-item>
-        <el-form-item label="省份" v-if="authStore.isSuperAdmin()">
+        <el-form-item label="省份">
           <el-select v-model="query.provinceCode" placeholder="全部" clearable @change="onProvinceChange">
             <el-option v-for="p in provinces" :key="p.code" :label="p.name" :value="p.code" />
           </el-select>
@@ -120,7 +120,7 @@ const cities = ref<any[]>([]);
 
 const query = reactive({
   page: 1,
-  pageSize: 20,
+  pageSize: 10,
   name: '',
   provinceCode: undefined as string | undefined,
   cityCode: undefined as string | undefined,
@@ -140,11 +140,6 @@ async function fetchData() {
 
 async function loadProvinces() {
   provinces.value = await getProvinces() as unknown as any[];
-  // 省管理员默认选自己的省份
-  if (!authStore.isSuperAdmin() && authStore.getProvinceCodes().length > 0) {
-    query.provinceCode = authStore.getProvinceCodes()[0];
-    await onProvinceChange();
-  }
 }
 
 async function onProvinceChange() {
@@ -165,7 +160,8 @@ function handleReset() {
   query.name = '';
   query.cityCode = undefined;
   query.isPublished = undefined;
-  if (authStore.isSuperAdmin()) query.provinceCode = undefined;
+  query.provinceCode = undefined;
+  cities.value = [];
   handleSearch();
 }
 

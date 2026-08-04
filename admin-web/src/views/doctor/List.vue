@@ -125,7 +125,7 @@ const form = reactive<any>({
 
 const query = reactive({
   page: 1,
-  pageSize: 20,
+  pageSize: 10,
   name: '',
   hospitalId: undefined as number | undefined,
   title: '',

@@ -15,13 +15,8 @@ export class PublicService {
   }
 
   async getCities(provinceCode: string) {
-    const province = await this.prisma.province.findUnique({
-      where: { code: provinceCode },
-    });
-    if (!province) return [];
-
     const cities = await this.prisma.city.findMany({
-      where: { provinceId: province.id, isEnabled: true },
+      where: { provinceCode, isEnabled: true },
       orderBy: { sortOrder: 'asc' },
       select: {
         id: true,

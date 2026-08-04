@@ -117,12 +117,57 @@ async function main() {
     });
     if (!existing) {
       await prisma.city.create({
-        data: { ...city, provinceId: liaoning.id, isEnabled: true },
+        data: { ...city, provinceId: liaoning.id, provinceCode: liaoning.code, isEnabled: true },
       });
     } else {
       await prisma.city.update({
         where: { id: existing.id },
-        data: { code: city.code },
+        data: { code: city.code, provinceCode: liaoning.code },
+      });
+    }
+  }
+
+  // 5. 黑龙江省 + 13 个城市（行政区划编码参考 GB/T 2260）
+  const heilongjiang = await prisma.province.upsert({
+    where: { id: 2 },
+    update: { code: '230000' },
+    create: {
+      code: '230000',
+      name: '黑龙江',
+      shortName: '黑',
+      sortOrder: 2,
+      isEnabled: true,
+    },
+  });
+
+  const hljCities = [
+    { code: '230100', name: '哈尔滨', sortOrder: 1 },
+    { code: '230200', name: '齐齐哈尔', sortOrder: 2 },
+    { code: '230300', name: '鸡西', sortOrder: 3 },
+    { code: '230400', name: '鹤岗', sortOrder: 4 },
+    { code: '230500', name: '双鸭山', sortOrder: 5 },
+    { code: '230600', name: '大庆', sortOrder: 6 },
+    { code: '230700', name: '伊春', sortOrder: 7 },
+    { code: '230800', name: '佳木斯', sortOrder: 8 },
+    { code: '230900', name: '七台河', sortOrder: 9 },
+    { code: '231000', name: '牡丹江', sortOrder: 10 },
+    { code: '231100', name: '黑河', sortOrder: 11 },
+    { code: '231200', name: '绥化', sortOrder: 12 },
+    { code: '232700', name: '大兴安岭', sortOrder: 13 },
+  ];
+
+  for (const city of hljCities) {
+    const existing = await prisma.city.findFirst({
+      where: { provinceId: heilongjiang.id, name: city.name },
+    });
+    if (!existing) {
+      await prisma.city.create({
+        data: { ...city, provinceId: heilongjiang.id, provinceCode: heilongjiang.code, isEnabled: true },
+      });
+    } else {
+      await prisma.city.update({
+        where: { id: existing.id },
+        data: { code: city.code, provinceCode: heilongjiang.code, sortOrder: city.sortOrder, isEnabled: true },
       });
     }
   }

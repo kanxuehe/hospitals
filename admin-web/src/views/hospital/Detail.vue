@@ -18,7 +18,6 @@
               <el-select
                 v-model="form.provinceId"
                 @change="onProvinceChange"
-                :disabled="!authStore.isSuperAdmin()"
               >
                 <el-option
                   v-for="p in provinces"

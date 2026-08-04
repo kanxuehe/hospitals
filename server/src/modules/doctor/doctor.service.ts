@@ -10,7 +10,7 @@ export class DoctorService {
   constructor(private prisma: PrismaService) {}
 
   async findMany(query: QueryDoctorDto, dataScope: { provinceIds: number[] | null }) {
-    const { page = 1, pageSize = 20, name, hospitalId, title } = query;
+    const { page = 1, pageSize = 10, name, hospitalId, title } = query;
 
     const where: Prisma.DoctorWhereInput = {};
 

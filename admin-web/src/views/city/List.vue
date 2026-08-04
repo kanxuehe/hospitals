@@ -64,7 +64,7 @@ const provinces = ref<any[]>([]);
 const selectedProvince = ref<string | undefined>();
 const dialogVisible = ref(false);
 const editing = ref<any>(null);
-const form = reactive({ code: '', name: '', sortOrder: 0, isEnabled: true, provinceId: 0 });
+const form = reactive({ code: '', name: '', sortOrder: 0, isEnabled: true, provinceCode: '' });
 
 async function fetchData() {
   if (!selectedProvince.value) return;
@@ -81,13 +81,13 @@ function openDialog(row?: any) {
   if (row) {
     Object.assign(form, row);
   } else {
-    Object.assign(form, { code: '', name: '', sortOrder: 0, isEnabled: true, provinceId: provinces.value.find(p => p.code === selectedProvince.value)?.id || 0 });
+    Object.assign(form, { code: '', name: '', sortOrder: 0, isEnabled: true, provinceCode: selectedProvince.value || '' });
   }
   dialogVisible.value = true;
 }
 
 async function handleSave() {
-  const payload = { code: form.code, name: form.name, sortOrder: form.sortOrder, isEnabled: form.isEnabled, provinceId: form.provinceId };
+  const payload = { code: form.code, name: form.name, sortOrder: form.sortOrder, isEnabled: form.isEnabled, provinceCode: form.provinceCode };
   if (editing.value) {
     await request.put(`/admin/cities/${editing.value.id}`, payload);
   } else {
@@ -114,12 +114,8 @@ async function handleAction(cmd: string, row: any) {
 
 onMounted(async () => {
   provinces.value = await getProvinces() as unknown as any[];
-  if (!authStore.isSuperAdmin() && authStore.getProvinceCodes().length > 0) {
-    selectedProvince.value = authStore.getProvinceCodes()[0];
-  } else if (provinces.value.length > 0) {
+  if (provinces.value.length > 0) {
     selectedProvince.value = provinces.value[0].code;
-  }
-  if (selectedProvince.value) {
     fetchData();
   }
 });

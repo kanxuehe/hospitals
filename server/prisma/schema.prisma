@@ -25,14 +25,15 @@ model Province {
 }
 
 model City {
-  id         Int      @id @default(autoincrement())
-  provinceId Int      @map("province_id")
-  code       String   @unique @db.VarChar(6)
-  name       String   @db.VarChar(50)
-  sortOrder  Int      @default(0)
-  isEnabled  Boolean  @default(true)
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id           Int      @id @default(autoincrement())
+  provinceId   Int      @map("province_id")
+  provinceCode String   @db.VarChar(6) @map("province_code")
+  code         String   @unique @db.VarChar(6)
+  name         String   @db.VarChar(50)
+  sortOrder    Int      @default(0)
+  isEnabled    Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   province  Province @relation(fields: [provinceId], references: [id])
   hospitals Hospital[]

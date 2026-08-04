@@ -10,7 +10,7 @@ export class HospitalService {
   constructor(private prisma: PrismaService) {}
 
   async findMany(query: QueryHospitalDto, dataScope: { provinceIds: number[] | null }) {
-    const { page = 1, pageSize = 20, name, provinceCode, cityCode, level, isPublished } = query;
+    const { page = 1, pageSize = 10, name, provinceCode, cityCode, level, isPublished } = query;
 
     const where: Prisma.HospitalWhereInput = {
       deletedAt: null,
@@ -44,7 +44,11 @@ export class HospitalService {
         where,
         skip: (page - 1) * pageSize,
         take: pageSize,
-        orderBy: [{ sortOrder: 'asc' }, { updatedAt: 'desc' }],
+        orderBy: [
+          { province: { sortOrder: 'asc' } },
+          { sortOrder: 'asc' },
+          { updatedAt: 'desc' },
+        ],
         include: {
           province: { select: { id: true, name: true } },
           city: { select: { id: true, name: true } },

@@ -10,12 +10,7 @@ export class CityService {
   async findAll(provinceCode?: string) {
     const where: any = {};
     if (provinceCode) {
-      const province = await this.prisma.province.findUnique({
-        where: { code: provinceCode },
-      });
-      if (province) {
-        where.provinceId = province.id;
-      }
+      where.provinceCode = provinceCode;
     }
 
     return this.prisma.city.findMany({
@@ -31,10 +26,18 @@ export class CityService {
   }
 
   async create(dto: CreateCityDto, dataScope: { provinceIds: number[] | null }) {
-    this.checkProvinceAccess(dto.provinceId, dataScope);
+    // 通过 provinceCode 查询省份
+    const province = await this.prisma.province.findUnique({
+      where: { code: dto.provinceCode },
+    });
+    if (!province) {
+      throw new NotFoundException('省份不存在');
+    }
+
+    this.checkProvinceAccess(province.id, dataScope);
 
     const existingName = await this.prisma.city.findFirst({
-      where: { provinceId: dto.provinceId, name: dto.name },
+      where: { provinceId: province.id, name: dto.name },
     });
     if (existingName) {
       throw new ConflictException('该省份下城市名称已存在');
@@ -47,16 +50,35 @@ export class CityService {
       throw new ConflictException('城市编码已存在');
     }
 
-    return this.prisma.city.create({ data: dto });
+    const { provinceCode, ...rest } = dto;
+    return this.prisma.city.create({
+      data: { ...rest, provinceId: province.id, provinceCode: province.code },
+    });
   }
 
   async update(id: number, dto: UpdateCityDto, dataScope: { provinceIds: number[] | null }) {
     const city = await this.ensureExists(id);
     this.checkProvinceAccess(city.provinceId, dataScope);
 
+    // 如果切换了省份，通过 provinceCode 查询新省份
+    let provinceId = city.provinceId;
+    let provinceCode = city.provinceCode;
+    if (dto.provinceCode && dto.provinceCode !== city.provinceCode) {
+      const province = await this.prisma.province.findUnique({
+        where: { code: dto.provinceCode },
+      });
+      if (!province) {
+        throw new NotFoundException('省份不存在');
+      }
+      this.checkProvinceAccess(province.id, dataScope);
+      provinceId = province.id;
+      provinceCode = province.code;
+    }
+
+    const { provinceCode: _omit, ...rest } = dto;
     return this.prisma.city.update({
       where: { id },
-      data: dto,
+      data: { ...rest, provinceId, provinceCode },
     });
   }
 
