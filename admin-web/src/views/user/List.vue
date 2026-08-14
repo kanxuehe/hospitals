@@ -6,6 +6,9 @@
     </div>
     <el-table :data="list" v-loading="loading" border>
       <el-table-column prop="username" label="用户名" width="120" />
+      <el-table-column label="分配省份">
+        <template #default="{ row }">{{ row.provinces?.map((p: any) => p.name).join('、') || '-' }}</template>
+      </el-table-column>
       <el-table-column prop="name" label="姓名" width="100" />
       <el-table-column prop="phone" label="手机号" width="130" />
       <el-table-column prop="role" label="角色" width="120">
@@ -14,9 +17,6 @@
             {{ row.role === 'super_admin' ? '超级管理员' : '省管理员' }}
           </el-tag>
         </template>
-      </el-table-column>
-      <el-table-column label="分配省份">
-        <template #default="{ row }">{{ row.provinces?.map((p: any) => p.name).join('、') || '-' }}</template>
       </el-table-column>
       <el-table-column label="状态" width="80">
         <template #default="{ row }">
@@ -55,8 +55,8 @@
           </el-select>
         </el-form-item>
         <el-form-item label="分配省份" v-if="form.role === 'province_admin'">
-          <el-select v-model="form.provinceIds" multiple style="width: 100%">
-            <el-option v-for="p in provinces" :key="p.id" :label="p.name" :value="p.id" />
+          <el-select v-model="form.provinceCodes" multiple style="width: 100%">
+            <el-option v-for="p in provinces" :key="p.code" :label="p.name" :value="p.code" />
           </el-select>
         </el-form-item>
       </el-form>
@@ -69,23 +69,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { ArrowDown } from '@element-plus/icons-vue';
 import { getUsers, createUser, updateUser, toggleUserEnabled, resetPassword, deleteUser } from '../../api/user';
 import { getProvinces } from '../../api/province';
+import { useAuthStore } from '../../stores/auth';
 
+const authStore = useAuthStore();
 const loading = ref(false);
-const list = ref<any[]>([]);
+const allList = ref<any[]>([]);
+const list = computed(() =>
+  allList.value.filter(u => u.username !== 'admin' && u.id !== authStore.user?.id)
+);
 const provinces = ref<any[]>([]);
 const dialogVisible = ref(false);
 const editing = ref<any>(null);
-const form = reactive<any>({ username: '', password: '', name: '', phone: '', role: 'province_admin', provinceIds: [] });
+const form = reactive<any>({ username: '', password: '', name: '', phone: '', role: 'province_admin', provinceCodes: [] });
 
 async function fetchData() {
   loading.value = true;
   try {
-    list.value = await getUsers() as unknown as any[];
+    allList.value = await getUsers() as unknown as any[];
   } finally {
     loading.value = false;
   }
@@ -94,19 +99,20 @@ async function fetchData() {
 function openDialog(row?: any) {
   editing.value = row || null;
   if (row) {
-    Object.assign(form, { ...row, provinceIds: row.provinces?.map((p: any) => p.id) || [] });
+    Object.assign(form, { ...row, provinceCodes: row.provinces?.map((p: any) => p.code) || [] });
   } else {
-    Object.assign(form, { username: '', password: '', name: '', phone: '', role: 'province_admin', provinceIds: [] });
+    Object.assign(form, { username: '', password: '', name: '', phone: '', role: 'province_admin', provinceCodes: [] });
   }
   dialogVisible.value = true;
 }
 
 async function handleSave() {
-  const payload = { username: form.username, name: form.name, phone: form.phone, role: form.role, provinceIds: form.provinceIds };
+  const payload: any = { username: form.username, name: form.name, phone: form.phone, role: form.role, provinceCodes: [...form.provinceCodes] };
   if (editing.value) {
     await updateUser(editing.value.id, payload);
   } else {
-    await createUser(form);
+    payload.password = form.password;
+    await createUser(payload);
   }
   ElMessage.success('保存成功');
   dialogVisible.value = false;

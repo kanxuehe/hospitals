@@ -27,7 +27,7 @@ export class UserService {
         createdAt: true,
         provinces: {
           include: {
-            province: { select: { id: true, name: true } },
+            province: { select: { id: true, name: true, code: true } },
           },
         },
       },
@@ -47,11 +47,18 @@ export class UserService {
       throw new ConflictException('用户名已存在');
     }
 
-    if (dto.role === 'province_admin' && dto.provinceIds.length === 0) {
+    if (dto.role === 'province_admin' && dto.provinceCodes.length === 0) {
       throw new BadRequestException('省管理员必须分配至少一个省份');
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
+
+    const provinces =
+      dto.provinceCodes.length > 0
+        ? await this.prisma.province.findMany({
+            where: { code: { in: dto.provinceCodes } },
+          })
+        : [];
 
     return this.prisma.user.create({
       data: {
@@ -62,7 +69,7 @@ export class UserService {
         role: dto.role,
         isEnabled: true,
         provinces: {
-          create: dto.provinceIds.map((provinceId) => ({ provinceId })),
+          create: provinces.map((p) => ({ provinceId: p.id })),
         },
       },
       select: {
@@ -79,13 +86,17 @@ export class UserService {
   async update(id: number, dto: UpdateUserDto) {
     await this.ensureExists(id);
 
-    if (dto.role === 'province_admin' && dto.provinceIds !== undefined && dto.provinceIds.length === 0) {
+    if (
+      dto.role === 'province_admin' &&
+      dto.provinceCodes !== undefined &&
+      dto.provinceCodes.length === 0
+    ) {
       throw new BadRequestException('省管理员必须分配至少一个省份');
     }
 
     return this.prisma.$transaction(async (tx) => {
       // 更新基本信息
-      const { provinceIds, ...userData } = dto;
+      const { provinceCodes, ...userData } = dto;
       if (Object.keys(userData).length > 0) {
         await tx.user.update({
           where: { id },
@@ -94,15 +105,18 @@ export class UserService {
       }
 
       // 更新省份分配
-      if (provinceIds !== undefined) {
+      if (provinceCodes !== undefined) {
         await tx.userProvince.deleteMany({
           where: { userId: id },
         });
-        if (provinceIds.length > 0) {
+        if (provinceCodes.length > 0) {
+          const provinces = await tx.province.findMany({
+            where: { code: { in: provinceCodes } },
+          });
           await tx.userProvince.createMany({
-            data: provinceIds.map((provinceId) => ({
+            data: provinces.map((p) => ({
               userId: id,
-              provinceId,
+              provinceId: p.id,
             })),
           });
         }
@@ -119,7 +133,7 @@ export class UserService {
           isEnabled: true,
           provinces: {
             include: {
-              province: { select: { id: true, name: true } },
+              province: { select: { id: true, name: true, code: true } },
             },
           },
         },

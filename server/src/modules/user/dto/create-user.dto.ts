@@ -1,5 +1,10 @@
-import { IsString, IsInt, IsBoolean, IsArray, MinLength, MaxLength, IsOptional } from 'class-validator';
-import { Type } from 'class-transformer';
+import {
+  IsString,
+  IsArray,
+  MinLength,
+  MaxLength,
+  IsOptional,
+} from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
@@ -24,6 +29,6 @@ export class CreateUserDto {
   role: string; // super_admin | province_admin
 
   @IsArray()
-  @IsInt({ each: true })
-  provinceIds: number[];
+  @IsString({ each: true })
+  provinceCodes: string[];
 }

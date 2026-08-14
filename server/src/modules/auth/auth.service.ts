@@ -22,8 +22,12 @@ export class AuthService {
       where: { username: dto.username },
     });
 
-    if (!user || !user.isEnabled) {
+    if (!user) {
       throw new UnauthorizedException('用户名或密码错误');
+    }
+
+    if (!user.isEnabled) {
+      throw new UnauthorizedException('账号已被禁用，请联系管理员');
     }
 
     const isMatch = await bcrypt.compare(dto.password, user.passwordHash);
@@ -48,8 +52,7 @@ export class AuthService {
     };
 
     const accessExpiresIn = '2h';
-    const refreshExpiresIn =
-      dto.rememberMe === 'true' ? '30d' : '7d';
+    const refreshExpiresIn = dto.rememberMe === 'true' ? '30d' : '7d';
 
     const accessToken = this.jwtService.sign(payload, {
       expiresIn: accessExpiresIn,
