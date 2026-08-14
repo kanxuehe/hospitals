@@ -26,7 +26,7 @@
       <el-table-column prop="lastLoginAt" label="最后登录" width="160">
         <template #default="{ row }">{{ row.lastLoginAt ? formatDate(row.lastLoginAt) : '从未' }}</template>
       </el-table-column>
-      <el-table-column label="操作" width="70" fixed="right">
+      <el-table-column label="操作" width="55" fixed="right">
         <template #default="{ row }">
           <el-dropdown trigger="click" @command="(cmd: string) => handleAction(cmd, row)">
             <el-button size="small" link>更多<el-icon style="margin-left: 2px"><ArrowDown /></el-icon></el-button>

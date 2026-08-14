@@ -247,4 +247,22 @@ async function submitChangePassword() {
 :deep(.el-drawer__body) {
   padding: 0;
 }
+
+/* 移动端紧凑布局 */
+@media (max-width: 768px) {
+  .header {
+    height: 48px !important;
+    padding: 0 8px;
+  }
+  .logo {
+    height: 48px;
+    font-size: 14px;
+  }
+  .main-content {
+    padding: 4px;
+  }
+  .mobile-title {
+    font-size: 14px;
+  }
+}
 </style>

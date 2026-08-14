@@ -191,3 +191,99 @@ a {
 .toolbar .el-button {
   margin: 0;
 }
+
+/* ===== 移动端紧凑布局 ===== */
+@media (max-width: 768px) {
+  /* 卡片间距缩小 */
+  .el-card {
+    margin-bottom: 8px !important;
+    --el-card-padding: 8px;
+  }
+  .el-card__body {
+    padding: 8px !important;
+  }
+
+  /* 表格行高压缩 */
+  .el-table .el-table__cell {
+    padding: 4px 0 !important;
+  }
+  .el-table .cell {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    font-size: 13px;
+  }
+
+  /* 搜索表单：每行两个，label 对齐 */
+  .search-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    row-gap: 8px;
+    column-gap: 8px;
+  }
+  .search-form .el-form-item {
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+  }
+  .search-form .el-form-item__label {
+    width: 56px !important;
+    flex-shrink: 0;
+    font-size: 13px;
+    padding-right: 4px;
+  }
+  .search-form .el-form-item__content {
+    flex: 1;
+    min-width: 0;
+  }
+  .search-form .el-input,
+  .search-form .el-select {
+    width: 100%;
+  }
+  /* 搜索/重置按钮占满整行 */
+  .search-form .el-form-item:last-child {
+    grid-column: 1 / -1;
+  }
+
+  /* 工具栏间距缩小 */
+  .toolbar {
+    column-gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  /* 分页器：隐藏总数和每页条数，保留页码列表 */
+  .el-pagination {
+    font-size: 13px;
+  }
+  .el-pagination .el-pagination__total,
+  .el-pagination .el-pagination__sizes {
+    display: none !important;
+  }
+  .el-pagination .el-pagination__jump {
+    margin-left: 0;
+    font-size: 13px;
+  }
+
+  /* Dialog 全宽 */
+  .el-dialog {
+    width: 95% !important;
+    margin: 8px auto !important;
+  }
+  .el-dialog__body {
+    padding: 12px !important;
+  }
+
+  /* Form label 缩窄 */
+  .el-form-item__label {
+    font-size: 13px;
+  }
+
+  /* Dashboard 统计卡片间距 */
+  .el-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  .el-col {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+}

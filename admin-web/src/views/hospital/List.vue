@@ -45,7 +45,7 @@
         @selection-change="handleSelectionChange"
         style="width: 100%"
       >
-        <el-table-column type="selection" width="50" />
+        <el-table-column type="selection" width="38" />
         <el-table-column prop="name" label="医院名称" min-width="140" show-overflow-tooltip />
         <el-table-column prop="province.name" label="省份" width="80" />
         <el-table-column prop="city.name" label="城市" width="80" />
@@ -67,7 +67,7 @@
         <el-table-column prop="updatedAt" label="更新时间" width="160">
           <template #default="{ row }">{{ formatDate(row.updatedAt) }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="70" fixed="right">
+        <el-table-column label="操作" width="55" fixed="right">
           <template #default="{ row }">
             <el-dropdown trigger="click" @command="(cmd: string) => handleAction(cmd, row)">
               <el-button size="small" link>更多<el-icon style="margin-left: 2px"><ArrowDown /></el-icon></el-button>
