@@ -49,7 +49,7 @@
         <el-form-item label="姓名"><el-input v-model="form.name" /></el-form-item>
         <el-form-item label="手机号"><el-input v-model="form.phone" /></el-form-item>
         <el-form-item label="角色">
-          <el-select v-model="form.role">
+          <el-select v-model="form.role" disabled>
             <el-option label="超级管理员" value="super_admin" />
             <el-option label="省管理员" value="province_admin" />
           </el-select>
