@@ -144,7 +144,7 @@
               />
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="55" fixed="right">
+          <el-table-column label="操作" width="58" fixed="right">
             <template #default="{ row }">
               <el-dropdown
                 trigger="click"

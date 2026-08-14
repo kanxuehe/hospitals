@@ -20,7 +20,7 @@
               <el-tag :type="row.isEnabled ? 'success' : 'info'" size="small">{{ row.isEnabled ? '启用' : '禁用' }}</el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="55" fixed="right">
+          <el-table-column label="操作" width="58" fixed="right">
             <template #default="{ row }">
               <el-dropdown trigger="click" @command="(cmd: string) => handleAction(cmd, dt.id, row)">
                 <el-button size="small" link>更多<el-icon style="margin-left: 2px"><ArrowDown /></el-icon></el-button>
