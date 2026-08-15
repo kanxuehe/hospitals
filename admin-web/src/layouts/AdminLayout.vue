@@ -20,7 +20,9 @@
             <span>医院管理</span>
           </template>
           <el-menu-item index="/hospitals">医院列表</el-menu-item>
+          <!-- 医生管理菜单暂时隐藏
           <el-menu-item index="/doctors">医生管理</el-menu-item>
+          -->
         </el-sub-menu>
 
         <el-sub-menu index="base">
@@ -103,8 +105,10 @@
               <span>医院管理</span>
             </template>
             <el-menu-item index="/hospitals">医院列表</el-menu-item>
-            <el-menu-item index="/doctors">医生管理</el-menu-item>
-          </el-sub-menu>
+          <!-- 医生管理菜单暂时隐藏
+          <el-menu-item index="/doctors">医生管理</el-menu-item>
+          -->
+        </el-sub-menu>
 
           <el-sub-menu index="base">
             <template #title>

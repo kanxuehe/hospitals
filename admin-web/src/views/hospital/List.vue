@@ -53,9 +53,11 @@
         <el-table-column label="门诊服务" width="90">
           <template #default="{ row }">{{ row._count?.clinicServices || 0 }}</template>
         </el-table-column> -->
+        <!-- 医生数量列暂时隐藏
         <el-table-column label="医生" width="70">
           <template #default="{ row }">{{ row._count?.doctors || 0 }}</template>
         </el-table-column>
+        -->
         <el-table-column label="状态" width="80">
           <template #default="{ row }">
             <el-switch
