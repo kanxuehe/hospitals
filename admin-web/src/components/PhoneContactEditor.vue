@@ -1,11 +1,9 @@
 <template>
   <div class="phone-editor">
     <el-table :data="phones" border size="small">
-      <el-table-column label="电话类型" width="140">
+      <el-table-column label="联系人" width="100">
         <template #default="{ row }">
-          <el-select v-model="row.phoneType" size="small" filterable>
-            <el-option v-for="t in phoneTypes" :key="t.value" :label="t.label" :value="t.value" />
-          </el-select>
+          <el-input v-model="row.contactPerson" size="small" />
         </template>
       </el-table-column>
       <el-table-column label="电话号码" width="160">
@@ -13,9 +11,11 @@
           <el-input v-model="row.phoneNumber" size="small" />
         </template>
       </el-table-column>
-      <el-table-column label="联系人" width="100">
+      <el-table-column label="电话类型" width="140">
         <template #default="{ row }">
-          <el-input v-model="row.contactPerson" size="small" />
+          <el-select v-model="row.phoneType" size="small" filterable>
+            <el-option v-for="t in phoneTypes" :key="t.value" :label="t.label" :value="t.value" />
+          </el-select>
         </template>
       </el-table-column>
       <el-table-column label="备注">
