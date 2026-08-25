@@ -37,3 +37,13 @@ export function batchPublish(ids: number[], isPublished: boolean) {
 export function batchDelete(ids: number[]) {
   return request.post('/admin/hospitals/batch/delete', { ids });
 }
+
+export function importHospitals(file: File, provinceId: number) {
+  const formData = new FormData();
+  formData.append('file', file);
+  return request.post(
+    `/admin/import/hospitals?provinceId=${provinceId}`,
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } },
+  );
+}

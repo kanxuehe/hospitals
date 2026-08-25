@@ -11,6 +11,7 @@ import { DoctorModule } from './modules/doctor/doctor.module';
 import { UserModule } from './modules/user/user.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { PublicModule } from './modules/public/public.module';
+import { ImportModule } from './modules/import/import.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 
 @Module({
@@ -26,6 +27,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     UserModule,
     DashboardModule,
     PublicModule,
+    ImportModule,
   ],
   providers: [
     {
