@@ -11,6 +11,7 @@ interface ParsedSchedule {
 
 interface ExcelRow {
   city: string;
+  cityCode: string;
   hospitalName: string;
   clinicName: string;
   schedule: string;
@@ -41,7 +42,7 @@ export class ImportService {
       hospitalsCreated: 0,
       hospitalsSkipped: 0,
       clinicServicesCreated: 0,
-      doctorsCreated: 0,
+      staffContactsCreated: 0,
       errors: [] as string[],
     };
 
@@ -50,9 +51,15 @@ export class ImportService {
       const rowLabel = `第 ${i + 2} 行`;
 
       try {
-        const city = await this.findOrCreateCity(row.city, province);
+        const city = await this.findOrCreateCity(
+          row.city,
+          row.cityCode,
+          province,
+        );
         if (!city) {
-          result.errors.push(`${rowLabel}: 城市「${row.city}」无法匹配`);
+          result.errors.push(
+            `${rowLabel}: 城市「${row.city}」无法匹配（缺少行政区划代码）`,
+          );
           continue;
         }
 
@@ -84,26 +91,36 @@ export class ImportService {
           });
         }
 
+        // Excel「出诊人员」映射到门诊服务下的联系电话（PhoneContact.contactPerson）
         if (row.staff) {
           const names = this.splitStaffNames(row.staff);
           for (const name of names) {
-            const existing = await this.prisma.doctor.findFirst({
-              where: { hospitalId: hospital.record.id, name },
+            // 同一门诊服务下已有同名出诊人员则跳过
+            const existing = await this.prisma.phoneContact.findFirst({
+              where: {
+                clinicServiceId: clinicService.record.id,
+                contactPerson: name,
+              },
             });
-            if (!existing) {
-              await this.prisma.doctor.create({
-                data: {
-                  hospitalId: hospital.record.id,
-                  name,
-                  title: '护士',
-                  isPublished: true,
-                  sortOrder: 0,
-                },
-              });
-              result.doctorsCreated++;
-            }
+            if (existing) continue;
+
+            const maxOrder = await this.prisma.phoneContact.aggregate({
+              where: { clinicServiceId: clinicService.record.id },
+              _max: { sortOrder: true },
+            });
+            await this.prisma.phoneContact.create({
+              data: {
+                clinicServiceId: clinicService.record.id,
+                phoneType: 'consultation',
+                phoneNumber: '',
+                contactPerson: name,
+                sortOrder: (maxOrder._max.sortOrder ?? 0) + 1,
+              },
+            });
+            result.staffContactsCreated++;
           }
         }
+        // Excel「出诊人员」映射结束
       } catch (e) {
         result.errors.push(`${rowLabel}: ${(e as Error).message}`);
       }
@@ -131,50 +148,70 @@ export class ImportService {
       const raw = data[i];
       if (!raw) continue;
       const city = String(raw[colMap.city] ?? '').trim();
+      const cityCode =
+        colMap.cityCode >= 0 ? String(raw[colMap.cityCode] ?? '').trim() : '';
       const hospitalName = String(raw[colMap.hospitalName] ?? '').trim();
       const clinicName = String(raw[colMap.clinicName] ?? '').trim();
       const schedule = String(raw[colMap.schedule] ?? '').trim();
       const staff = String(raw[colMap.staff] ?? '').trim();
       if (!city && !hospitalName) continue;
-      rows.push({ city, hospitalName, clinicName, schedule, staff });
+      rows.push({ city, cityCode, hospitalName, clinicName, schedule, staff });
     }
     return rows;
   }
 
   private detectColumns(header: string[]) {
-    const find = (keywords: string[]) => {
-      const idx = header.findIndex((h) =>
-        keywords.some((k) => h.includes(k)),
+    const find = (keywords: string[], exclude: number[] = []) => {
+      const idx = header.findIndex(
+        (h, i) => !exclude.includes(i) && keywords.some((k) => h.includes(k)),
       );
       return idx >= 0 ? idx : 0;
     };
+    const findOptional = (keywords: string[], exclude: number[] = []) => {
+      const idx = header.findIndex(
+        (h, i) => !exclude.includes(i) && keywords.some((k) => h.includes(k)),
+      );
+      return idx;
+    };
+    const cityCodeIdx = findOptional(['代码', 'code', '区划']);
+    const exclude = cityCodeIdx >= 0 ? [cityCodeIdx] : [];
     return {
-      city: find(['城市']),
-      hospitalName: find(['医院']),
-      clinicName: find(['门诊']),
-      schedule: find(['出诊', '时间', '排班']),
-      staff: find(['人员', '出诊', '医生', '护士']),
+      city: find(['城市'], exclude),
+      cityCode: cityCodeIdx,
+      hospitalName: find(['医院'], exclude),
+      clinicName: find(['门诊'], exclude),
+      schedule: find(['出诊', '时间', '排班'], exclude),
+      staff: find(['人员', '医生', '护士'], exclude),
     };
   }
 
   private async findOrCreateCity(
     cityName: string,
+    cityCode: string,
     province: { id: number; code: string },
   ) {
-    if (!cityName) return null;
     const normalized = cityName.replace(/市$/, '').trim();
-    let city = await this.prisma.city.findFirst({
-      where: {
-        provinceId: province.id,
-        name: { contains: normalized },
-      },
-    });
-    if (!city) {
+    // 优先用 Excel 提供的行政区划代码匹配
+    let city = null as null | { id: number; code: string };
+    if (cityCode) {
+      city = await this.prisma.city.findUnique({ where: { code: cityCode } });
+    }
+    if (!city && cityName) {
+      city = await this.prisma.city.findFirst({
+        where: {
+          provinceId: province.id,
+          name: { contains: normalized },
+        },
+      });
+    }
+    if (!city && cityName) {
       city = await this.prisma.city.findFirst({
         where: { name: { contains: cityName } },
       });
     }
+    // 不存在时，必须用 Excel 提供的 cityCode 创建，不再自动生成代码
     if (!city) {
+      if (!cityCode) return null;
       const maxOrder = await this.prisma.city.aggregate({
         where: { provinceId: province.id },
         _max: { sortOrder: true },
@@ -182,7 +219,7 @@ export class ImportService {
       city = await this.prisma.city.create({
         data: {
           name: normalized || cityName,
-          code: `${province.code}${String(Date.now()).slice(-4)}`,
+          code: cityCode,
           provinceId: province.id,
           provinceCode: province.code,
           sortOrder: (maxOrder._max.sortOrder ?? 0) + 1,
@@ -226,7 +263,7 @@ export class ImportService {
     hospitalId: number,
     clinicName: string,
   ) {
-    const clinicType = this.matchClinicType(clinicName);
+    const clinicType = await this.resolveClinicType(clinicName);
     let record = await this.prisma.clinicService.findFirst({
       where: { hospitalId, clinicType },
     });
@@ -248,21 +285,38 @@ export class ImportService {
     return { record, created: true };
   }
 
-  private matchClinicType(clinicName: string): string {
-    if (!clinicName) return 'stoma';
-    const dict: { keywords: string[]; value: string }[] = [
-      { keywords: ['泌尿', '尿控', '失禁'], value: 'stoma_urostomy' },
-      { keywords: ['普外科'], value: 'stoma_wound_general' },
-      { keywords: ['胃肠'], value: 'stoma_wound_gi' },
-      { keywords: ['造口伤口', '伤口造口'], value: 'stoma_wound' },
-      { keywords: ['伤口'], value: 'wound' },
-      { keywords: ['护理'], value: 'nursing' },
-      { keywords: ['造口'], value: 'stoma' },
-    ];
-    for (const d of dict) {
-      if (d.keywords.some((k) => clinicName.includes(k))) return d.value;
-    }
-    return 'other';
+  /**
+   * 按门诊名称解析 clinicType：
+   * - 在字典表 clinic_type 中按 label 精确匹配，命中则返回其 value
+   * - 未命中则新建字典项（label 与 value 均使用门诊名称汉字）
+   * - 门诊名称为空时返回"其他"
+   */
+  private async resolveClinicType(clinicName: string): Promise<string> {
+    if (!clinicName) return '其他';
+    const dictType = await this.prisma.dictType.findUnique({
+      where: { code: 'clinic_type' },
+    });
+    if (!dictType) return clinicName;
+
+    const existing = await this.prisma.dictItem.findFirst({
+      where: { dictTypeId: dictType.id, label: clinicName },
+    });
+    if (existing) return existing.value;
+
+    const maxOrder = await this.prisma.dictItem.aggregate({
+      where: { dictTypeId: dictType.id },
+      _max: { sortOrder: true },
+    });
+    const created = await this.prisma.dictItem.create({
+      data: {
+        dictTypeId: dictType.id,
+        label: clinicName,
+        value: clinicName,
+        sortOrder: (maxOrder._max.sortOrder ?? 0) + 1,
+        isEnabled: true,
+      },
+    });
+    return created.value;
   }
 
   private splitStaffNames(staff: string): string[] {

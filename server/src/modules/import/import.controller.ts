@@ -9,7 +9,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { ImportService } from './import.service';
 import { DataScopeGuard } from '../../common/guards/data-scope.guard';
@@ -22,13 +21,6 @@ export class ImportController {
   @Post('hospitals')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (_req, file, cb) => {
-          const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-          cb(null, `${unique}${extname(file.originalname)}`);
-        },
-      }),
       limits: { fileSize: 10 * 1024 * 1024 },
       fileFilter: (_req, file, cb) => {
         const ext = extname(file.originalname).toLowerCase();
