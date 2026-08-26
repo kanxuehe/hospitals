@@ -119,7 +119,10 @@
             <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
             <div class="el-upload__text">将 Excel 文件拖到此处，或<em>点击上传</em></div>
             <template #tip>
-              <div class="el-upload__tip">仅支持 .xlsx / .xls 格式，列需包含：城市、医院名称、门诊名称、出诊时间、出诊人员</div>
+              <div class="el-upload__tip">
+                仅支持 .xlsx / .xls 格式。列说明：城市、行政区划代码、医院名称、门诊名称、出诊人员，以及 周一上午~周日晚上 共 21 个时段勾选列（填 1 或 ✓ 表示出诊，留空表示不出诊）。
+                <el-link type="primary" :underline="false" @click="downloadTemplate">下载 Excel 模板</el-link>
+              </div>
             </template>
           </el-upload>
         </el-form-item>
@@ -263,6 +266,15 @@ function formatDate(d: string) {
 
 function handleImportFileChange(uploadFile: any) {
   importFile.value = uploadFile.raw;
+}
+
+function downloadTemplate() {
+  const a = document.createElement('a');
+  a.href = '/template.xlsx';
+  a.download = '医院导入模板.xlsx';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 async function handleImport() {
