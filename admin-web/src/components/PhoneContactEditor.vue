@@ -30,13 +30,13 @@
       </el-table-column>
       <template #append>
         <div style="text-align: center; padding: 8px 0;">
-          <el-button size="small" type="primary" link @click="handleAdd">+ 添加电话</el-button>
+          <el-button size="small" type="primary" link @click="handleAdd">+ 添加出诊人员</el-button>
         </div>
       </template>
     </el-table>
     <div style="margin-top: 8px">
       <el-button size="small" type="primary" plain @click="handleSave" :loading="saving">
-        保存联系电话
+        保存出诊人员
       </el-button>
     </div>
   </div>

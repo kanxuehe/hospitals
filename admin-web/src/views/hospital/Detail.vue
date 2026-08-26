@@ -104,13 +104,25 @@
             </template>
 
             <div>
+              <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                <span style="font-weight: bold; white-space: nowrap;">门诊类型：</span>
+                <el-select v-model="cs.clinicType" style="width: 200px;">
+                  <el-option
+                    v-for="t in clinicTypes"
+                    :key="t.value"
+                    :label="t.label"
+                    :value="t.value"
+                  />
+                </el-select>
+                <el-button type="primary" size="small" @click="saveClinicType(cs)" :loading="cs._savingType">保存</el-button>
+              </div>
               <h4 style="margin-bottom: 12px">门诊时间</h4>
               <ClinicScheduleEditor
                 :clinic-service-id="cs.id"
                 :initial-schedules="cs.schedules"
               />
 
-              <h4 style="margin: 12px 0">联系电话</h4>
+              <h4 style="margin: 12px 0">出诊人员</h4>
               <PhoneContactEditor
                 ref="phoneEditors"
                 :clinic-service-id="cs.id"
@@ -239,6 +251,7 @@ import { getCities } from "../../api/city";
 import { getDictItems } from "../../api/dict";
 import {
   createClinicService,
+  updateClinicService,
   deleteClinicService,
 } from "../../api/clinic-service";
 import { createDoctor, updateDoctor, deleteDoctor } from "../../api/doctor";
@@ -387,6 +400,16 @@ async function saveClinic() {
   clinicForm.clinicType = "";
   clinicForm.intro = "";
   loadData();
+}
+
+async function saveClinicType(cs: any) {
+  cs._savingType = true;
+  try {
+    await updateClinicService(cs.id, { clinicType: cs.clinicType });
+    ElMessage.success("门诊类型已更新");
+  } finally {
+    cs._savingType = false;
+  }
 }
 
 async function handleDeleteClinic(csId: number) {
