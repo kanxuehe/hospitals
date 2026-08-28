@@ -106,7 +106,7 @@
             <div>
               <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
                 <span style="font-weight: bold; white-space: nowrap;">门诊类型：</span>
-                <el-select v-model="cs.clinicType" style="width: 200px;">
+                <el-select v-model="cs.clinicType" style="width: 200px;" filterable>
                   <el-option
                     v-for="t in clinicTypes"
                     :key="t.value"
