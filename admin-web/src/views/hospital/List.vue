@@ -38,7 +38,7 @@
         <el-button type="warning" :disabled="selectedIds.length === 0" @click="handleBatchPublish(false)">批量隐藏</el-button>
         <el-button type="danger" :disabled="selectedIds.length === 0" @click="handleBatchDelete">批量删除</el-button>
         <el-button type="primary" @click="goCreate">新增医院</el-button>
-        <el-button type="info" @click="showImportDialog = true">导入Excel</el-button>
+        <el-button v-if="authStore.isSuperAdmin()" type="info" @click="showImportDialog = true">导入Excel</el-button>
       </div>
       <el-table
         :data="tableData"
