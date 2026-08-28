@@ -142,7 +142,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { ArrowDown, UploadFilled } from '@element-plus/icons-vue';
 import type { UploadInstance } from 'element-plus';
 import { useAuthStore } from '../../stores/auth';
-import { getHospitals, deleteHospital, batchPublish, batchDelete, updateHospital, importHospitals } from '../../api/hospital';
+import { getHospitals, deleteHospital, batchPublish, batchDelete, updateHospital, importHospitals, downloadHospitalTemplate } from '../../api/hospital';
 import { getProvinces } from '../../api/province';
 import { getCities } from '../../api/city';
 
@@ -269,12 +269,7 @@ function handleImportFileChange(uploadFile: any) {
 }
 
 function downloadTemplate() {
-  const a = document.createElement('a');
-  a.href = '/template.xlsx';
-  a.download = '医院导入模板.xlsx';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  downloadHospitalTemplate();
 }
 
 async function handleImport() {
@@ -290,7 +285,7 @@ async function handleImport() {
   try {
     const res: any = await importHospitals(importFile.value, importProvinceId.value);
     ElMessage.success(
-      `导入完成：共 ${res.total} 行，新建医院 ${res.hospitalsCreated}，跳过 ${res.hospitalsSkipped}，新建门诊 ${res.clinicServicesCreated}，新建医护 ${res.doctorsCreated}`,
+      `导入完成：共 ${res.total} 行，新建医院 ${res.hospitalsCreated}，新建门诊 ${res.clinicServicesCreated}`,
     );
     if (res.errors?.length) {
       ElMessageBox.alert(res.errors.join('\n'), '部分行导入失败', { type: 'warning' });

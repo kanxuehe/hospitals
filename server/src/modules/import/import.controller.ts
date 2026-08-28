@@ -7,9 +7,12 @@ import {
   Req,
   BadRequestException,
   UseGuards,
+  Get,
+  Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { extname } from 'path';
+import { extname, join } from 'path';
+import type { Response } from 'express';
 import { ImportService } from './import.service';
 import { DataScopeGuard } from '../../common/guards/data-scope.guard';
 
@@ -46,5 +49,11 @@ export class ImportController {
       provinceIdNum,
       req.user.sub,
     );
+  }
+
+  @Get('template')
+  downloadTemplate(@Res() res: Response) {
+    const filePath = join(process.cwd(), 'public', 'template.xlsx');
+    res.download(filePath, '医院导入模板.xlsx');
   }
 }

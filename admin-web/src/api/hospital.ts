@@ -1,4 +1,6 @@
 import request from './request';
+import axios from 'axios';
+import { getAccessToken } from '../utils/auth';
 
 export interface HospitalQuery {
   page?: number;
@@ -46,4 +48,19 @@ export function importHospitals(file: File, provinceId: number) {
     formData,
     { headers: { 'Content-Type': 'multipart/form-data' } },
   );
+}
+
+export async function downloadHospitalTemplate() {
+  const res = await axios.get('/api/admin/import/template', {
+    headers: { Authorization: `Bearer ${getAccessToken()}` },
+    responseType: 'blob',
+  });
+  const url = URL.createObjectURL(res.data);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '医院导入模板.xlsx';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
